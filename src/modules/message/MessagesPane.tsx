@@ -119,12 +119,12 @@ const MessagesPane = ({
           },
         };
         // const updatedMessagesWithResponse = [...updatedMessages, response];
-        setTimeout(() => {
-          setMessages((m) => [...m, response]);
-          setStatus(Status.Idle);
-        }, 2000);
+        setMessages((m) => [...m, response]);
       })
       .finally(() => {
+        // set status back to idle
+        setStatus(Status.Idle);
+
         // post comment from bot
         // postAppDataAsync({
         //   data: actionData,
