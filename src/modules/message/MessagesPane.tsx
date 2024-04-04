@@ -5,11 +5,12 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
-import { buildPrompt } from '@graasp/apps-query-client';
+import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import { mutations } from '@/config/queryClient';
+import AgentType from '@/types/AgentType';
 import Exchange from '@/types/Exchange';
 import { Message } from '@/types/Message';
 import Status from '@/types/Status';
@@ -24,6 +25,31 @@ type MessagesPaneProps = {
   participantId: string;
   readOnly?: boolean;
   goToNextExchange: () => void;
+};
+
+const buildPrompt = (
+  threadMessages: Message[],
+  userMessage: Message,
+): Array<ChatBotMessage> => {
+  // define the message to send to OpenAI with the initial prompt first if needed (role system).
+  // Each call to OpenAI must contain the whole history of the messages.
+  // const finalPrompt: Array<ChatBotMessage> = initialPrompt
+  //   ? [{ role: ChatbotRole.System, content: initialPrompt }]
+  //   : [];
+  const finalPrompt = [];
+
+  threadMessages.forEach((msg) => {
+    const msgRole =
+      msg.sender.type === AgentType.Assistant
+        ? ChatbotRole.Assistant
+        : ChatbotRole.User;
+    finalPrompt.push({ role: msgRole, content: msg.content });
+  });
+
+  // add the last user's message in the prompt
+  finalPrompt.push({ role: ChatbotRole.User, content: userMessage.content });
+
+  return finalPrompt;
 };
 
 const MessagesPane = ({
@@ -47,7 +73,7 @@ const MessagesPane = ({
         sender: {
           id: '1',
           name: 'Bot',
-          type: 'bot',
+          type: AgentType.Assistant,
         },
       },
     ];
@@ -57,13 +83,13 @@ const MessagesPane = ({
 
   const saveNewMessage = ({ content }: { content: string }): void => {
     setStatus(Status.Loading);
-    const newMessage = {
+    const newMessage: Message = {
       id: uuidv4(),
       content,
       sender: {
         id: participantId,
         name: 'User',
-        type: 'user',
+        type: AgentType.User,
       },
     };
     const updatedMessages = [...messages, newMessage];
@@ -77,7 +103,7 @@ const MessagesPane = ({
       // we can not use it in this context as we are using a JSON prompt.
       // if we simplify the prompt in the future we will be able to remove the line above
       // and this function solely
-      ...buildPrompt(undefined, messages, newMessage.content),
+      ...buildPrompt(messages, newMessage),
     ];
 
     postChatBot(prompt)
@@ -89,7 +115,7 @@ const MessagesPane = ({
           sender: {
             id: '1',
             name: 'Bot',
-            type: 'bot',
+            type: AgentType.Assistant,
           },
         };
         // const updatedMessagesWithResponse = [...updatedMessages, response];

@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 
 import MessagesPane from '@/modules/message/MessagesPane';
 import Agent from '@/types/Agent';
+import AgentType from '@/types/AgentType';
 import Interaction from '@/types/Interaction';
 
 const ParticipantInteraction = (): ReactElement => {
@@ -15,7 +16,7 @@ const ParticipantInteraction = (): ReactElement => {
     id: '1',
     name: 'Assistant',
     description: 'Assistant Description',
-    type: 'bot',
+    type: AgentType.Assistant,
   };
 
   const defaultInteraction: Interaction = {
@@ -30,7 +31,7 @@ const ParticipantInteraction = (): ReactElement => {
     completed: false,
     participant: {
       id: participantId,
-      type: 'user',
+      type: AgentType.Assistant,
       description: 'User Description',
       name: 'User',
     },
