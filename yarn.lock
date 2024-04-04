@@ -4098,22 +4098,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.delay@npm:^4":
-  version: 4.1.9
-  resolution: "@types/lodash.delay@npm:4.1.9"
-  dependencies:
-    "@types/lodash": "npm:*"
-  checksum: 10/2feae6891050dfd65ed9177fe2e7b42c2f6a9adacd7aa5dc90276ccf36d176b919a19dc0611e3045a0702aa35798d7ca523dc47818f2d4d4e0165e9cee1be474
-  languageName: node
-  linkType: hard
-
-"@types/lodash@npm:*":
-  version: 4.17.0
-  resolution: "@types/lodash@npm:4.17.0"
-  checksum: 10/2053203292b5af99352d108656ceb15d39da5922fc3fb8186e1552d65c82d6e545372cc97f36c95873aa7186404d59d9305e9d49254d4ae55e77df1e27ab7b5d
-  languageName: node
-  linkType: hard
-
 "@types/mime@npm:*":
   version: 3.0.4
   resolution: "@types/mime@npm:3.0.4"
@@ -8233,7 +8217,6 @@ __metadata:
     "@tanstack/react-query-devtools": "npm:4.36.1"
     "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
     "@types/i18n": "npm:0.13.10"
-    "@types/lodash.delay": "npm:^4"
     "@types/node": "npm:20.11.30"
     "@types/react": "npm:18.2.70"
     "@types/react-dom": "npm:18.2.22"
@@ -8260,7 +8243,6 @@ __metadata:
     eslint-plugin-react-hooks: "npm:4.6.0"
     husky: "npm:9.0.11"
     i18next: "npm:23.9.0"
-    lodash.delay: "npm:4.1.1"
     miragejs: "npm:0.1.48"
     nock: "npm:13.5.3"
     nyc: "npm:15.1.0"
@@ -9560,13 +9542,6 @@ __metadata:
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
   checksum: 10/cd0b2819786e6e80cb9f5cda26b1a8fc073daaf04e48d4cb462fa4663ec9adb3a5387aa22d7129e48eed1afa05b482e2a6b79bfc99b86886364449500cbb00fd
-  languageName: node
-  linkType: hard
-
-"lodash.delay@npm:4.1.1":
-  version: 4.1.1
-  resolution: "lodash.delay@npm:4.1.1"
-  checksum: 10/d6f21998d25a1db0ad1d3e943d5b329efc7f556b04a0a05f23a0517f86c2dcdde505c9f5264ead825a51ad4a9d6481f06cd564342002be9465faf50ccf87193f
   languageName: node
   linkType: hard
 
