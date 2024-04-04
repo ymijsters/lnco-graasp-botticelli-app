@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 
 import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 
+import delay from 'lodash.delay';
 import { v4 as uuidv4 } from 'uuid';
 
 import { mutations } from '@/config/queryClient';
@@ -25,6 +26,19 @@ type MessagesPaneProps = {
   participantId: string;
   readOnly?: boolean;
   goToNextExchange: () => void;
+};
+
+const scrollToBottom = (): void => {
+  // todo: factor out
+  const delayInMillis = 500;
+  delay(
+    () =>
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth',
+      }),
+    delayInMillis,
+  );
 };
 
 const buildPrompt = (
@@ -95,6 +109,8 @@ const MessagesPane = ({
     const updatedMessages = [...messages, newMessage];
     setMessages((m) => [...m, newMessage]);
 
+    scrollToBottom();
+
     // respond
     const prompt = [
       // initial settings
@@ -124,6 +140,8 @@ const MessagesPane = ({
       .finally(() => {
         // set status back to idle
         setStatus(Status.Idle);
+
+        scrollToBottom();
 
         // post comment from bot
         // postAppDataAsync({
