@@ -66,9 +66,12 @@ const theme = createTheme({
   },
 });
 
+const getParentWindowHeight = (): number =>
+  window.parent.document.body.scrollHeight;
+
 const RootDiv = styled('div')({
   flexGrow: 1,
-  height: '100vh',
+  height: getParentWindowHeight(),
 });
 
 const Root: FC = () => {

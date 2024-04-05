@@ -36,7 +36,13 @@ const buildPrompt = (
   // const finalPrompt: Array<ChatBotMessage> = initialPrompt
   //   ? [{ role: ChatbotRole.System, content: initialPrompt }]
   //   : [];
-  const finalPrompt = [];
+  const finalPrompt = [
+    {
+      role: ChatbotRole.System,
+      content:
+        'You are a chatbot interviewer that is chatting with someone that just attended a concert. You will ask them a main question and follow up with questions depending on their answers.',
+    },
+  ];
 
   threadMessages.forEach((msg) => {
     const msgRole =

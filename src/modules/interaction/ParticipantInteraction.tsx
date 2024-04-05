@@ -23,8 +23,8 @@ const ParticipantInteraction = (): ReactElement => {
     id: 0,
     description: 'Default Description',
     modelInstructions: '',
-    participantInstructions: 'Welcome to our interaction!',
-    participantInstructionsOnComplete: 'Done!',
+    participantInstructions: `Thanks for participating! Now that the concert is over, you will hold a short interaction with an artificial agent. The agent will ask you three general questions about your experience during the concert, along with some follow up questions. The whole interaction should last between 5 and 10 minutes. Note that your responses are entirely anonymous, but if you provide any personal information, you might be identifiable. Please click start to get started.`,
+    participantInstructionsOnComplete: `Thank you for participating in this short interaction.`,
     name: 'Default Name',
     currentExchange: 0,
     started: false,
@@ -41,8 +41,8 @@ const ParticipantInteraction = (): ReactElement => {
         name: 'Exchange 1',
         description: 'Exchange 1 Description',
         instructions: 'Instructions',
-        participantInstructionsOnComplete: "You're done.",
-        cue: 'Hi! This is exchange 1.',
+        participantInstructionsOnComplete: `Thanks for answering this question. You can go on to the next question by clicking on "Next".`,
+        cue: `Hi! Let's start by discussing what was going on in your mind during the concert. What images came to mind? What were you thinking about?`,
         order: 0,
         messages: [],
         assistant: artificialAssistant,
@@ -50,7 +50,7 @@ const ParticipantInteraction = (): ReactElement => {
         started: false,
         completed: false,
         dismissed: false,
-        softLimit: 2,
+        softLimit: 5,
         hardLimit: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -60,9 +60,28 @@ const ParticipantInteraction = (): ReactElement => {
         name: 'Exchange 2',
         description: 'Exchange 2 Description',
         instructions: 'Instructions',
-        participantInstructionsOnComplete: "You're done.",
-        cue: 'Hi! This is exchange 2.',
-        order: 1,
+        participantInstructionsOnComplete: `Thanks for answering this question. You can go on to the next question by clicking on "Next".`,
+        cue: `Now let's try to understand a bit more the nature of what was going on in your mind. Were you thinking about realistic images or more abstract thoughts?`,
+        order: 2,
+        messages: [],
+        assistant: artificialAssistant,
+        triggers: [],
+        started: false,
+        completed: false,
+        dismissed: false,
+        softLimit: 5,
+        hardLimit: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 1,
+        name: 'Exchange 3',
+        description: 'Exchange 3 Description',
+        instructions: 'Instructions',
+        participantInstructionsOnComplete: `Thanks for answering this question. You can finish the interaction by clicking on "Next".`,
+        cue: `Finally, let's talk a bit about how you perceived your body during the concert. Were there any particular bodily sensations that stood out?`,
+        order: 3,
         messages: [],
         assistant: artificialAssistant,
         triggers: [],
@@ -121,7 +140,7 @@ const ParticipantInteraction = (): ReactElement => {
         }}
       >
         {interaction.participantInstructions && (
-          <Typography variant="h3" sx={{ p: 10, textAlign: 'center' }}>
+          <Typography variant="h4" sx={{ p: 10, textAlign: 'justify' }}>
             {interaction.participantInstructions}
           </Typography>
         )}
