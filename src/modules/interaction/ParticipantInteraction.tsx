@@ -160,7 +160,10 @@ const ParticipantInteraction = (): ReactElement => {
         }}
       >
         {interaction.participantInstructions && (
-          <Typography variant="h4" sx={{ p: 2, pt: 4, textAlign: 'justify' }}>
+          <Typography
+            variant="body1"
+            sx={{ p: 2, pt: 4, textAlign: 'justify' }}
+          >
             {interaction.participantInstructions}
           </Typography>
         )}
@@ -185,7 +188,7 @@ const ParticipantInteraction = (): ReactElement => {
         textAlign: 'center',
       }}
     >
-      <Typography variant="h3" sx={{ p: 10, textAlign: 'center' }}>
+      <Typography variant="body1" sx={{ p: 10, textAlign: 'center' }}>
         {interaction.participantInstructionsOnComplete}
       </Typography>
     </Box>
