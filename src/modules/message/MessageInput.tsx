@@ -45,15 +45,22 @@ const MessageInput = ({
     goToNextExchange();
   }
 
-  const focusOnTextArea = (): void => {
+  // const focusOnTextArea = (): void => {
+  //   const textareaElement = textAreaRef?.current?.querySelector('textarea');
+  //   if (textareaElement) {
+  //     textareaElement.focus();
+  //   }
+  // };
+
+  const blurTextArea = (): void => {
     const textareaElement = textAreaRef?.current?.querySelector('textarea');
     if (textareaElement) {
-      textareaElement.focus();
+      textareaElement.blur();
     }
   };
 
   useEffect(() => {
-    focusOnTextArea();
+    // focusOnTextArea();
   });
 
   const handleClick = (): void => {
@@ -62,7 +69,9 @@ const MessageInput = ({
       setTextAreaValue('');
 
       // focus on the text area
-      focusOnTextArea();
+      // focusOnTextArea();
+      // blue text area
+      blurTextArea();
     }
   };
 
