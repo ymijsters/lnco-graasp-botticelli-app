@@ -1,6 +1,6 @@
 import { Context, PermissionLevel } from '@graasp/sdk';
 
-import { PLAYER_VIEW_CY, buildDataCy } from '../../../src/config/selectors';
+import { START_INTERACTION_BUTTON_CY, buildDataCy } from '@/config/selectors';
 
 describe('Player View', () => {
   beforeEach(() => {
@@ -15,9 +15,9 @@ describe('Player View', () => {
   });
 
   it('App', () => {
-    cy.get(buildDataCy(PLAYER_VIEW_CY)).should(
+    cy.get(buildDataCy(START_INTERACTION_BUTTON_CY)).should(
       'contain.text',
-      'Welcome to our interaction!Start',
+      `Start`,
     );
   });
 });

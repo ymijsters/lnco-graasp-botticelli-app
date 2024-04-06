@@ -4,6 +4,7 @@ import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
+import { START_INTERACTION_BUTTON_CY } from '@/config/selectors';
 import MessagesPane from '@/modules/message/MessagesPane';
 import Agent from '@/types/Agent';
 import AgentType from '@/types/AgentType';
@@ -166,6 +167,7 @@ const ParticipantInteraction = (): ReactElement => {
         <Button
           variant="contained"
           size="large"
+          data-cy={START_INTERACTION_BUTTON_CY}
           sx={{ mt: 3, mx: 'auto' }}
           onClick={handleStartInteraction}
         >
