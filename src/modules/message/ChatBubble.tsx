@@ -23,7 +23,7 @@ const ChatBubble = ({
 }: ChatBubbleProps): ReactElement => {
   const isSent = variant === 'sent';
   return (
-    <Box sx={{ maxWidth: '60%', minWidth: 'auto' }}>
+    <Box sx={{ maxWidth: '100%', minWidth: 'auto' }}>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -49,7 +49,7 @@ const ChatBubble = ({
           }}
         >
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
               color: isSent
                 ? 'var(--joy-palette-common-white)'

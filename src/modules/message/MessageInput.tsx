@@ -74,12 +74,13 @@ const MessageInput = ({
     <Box sx={{ px: 2, pb: 3 }}>
       <FormControl sx={{ width: '100%' }}>
         <Textarea
-          placeholder="Type something here…"
+          placeholder="Votre réponse ici…"
           aria-label="Message"
           ref={textAreaRef}
           onChange={(e): void => {
             setTextAreaValue(e.target.value);
           }}
+          size="small"
           multiline
           value={textAreaValue}
           minRows={3}

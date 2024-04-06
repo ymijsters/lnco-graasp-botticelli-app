@@ -75,7 +75,7 @@ const ParticipantInteraction = (): ReactElement => {
         updatedAt: new Date(),
       },
       {
-        id: 1,
+        id: 2,
         name: 'Exchange 3',
         description: 'Exchange 3 Description',
         instructions: 'Instructions',
@@ -89,6 +89,25 @@ const ParticipantInteraction = (): ReactElement => {
         completed: false,
         dismissed: false,
         softLimit: 5,
+        hardLimit: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        name: 'Exchange 4',
+        description: 'Exchange 4 Description',
+        instructions: 'Instructions',
+        participantInstructionsOnComplete: `Thanks for answering this question. You can finish the interaction by clicking on "Next".`,
+        cue: `Thanks again for your responses! Do you have anything else to add?`,
+        order: 4,
+        messages: [],
+        assistant: artificialAssistant,
+        triggers: [],
+        started: false,
+        completed: false,
+        dismissed: false,
+        softLimit: 1,
         hardLimit: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -140,7 +159,7 @@ const ParticipantInteraction = (): ReactElement => {
         }}
       >
         {interaction.participantInstructions && (
-          <Typography variant="h4" sx={{ p: 10, textAlign: 'justify' }}>
+          <Typography variant="h4" sx={{ p: 2, pt: 4, textAlign: 'justify' }}>
             {interaction.participantInstructions}
           </Typography>
         )}
@@ -171,6 +190,7 @@ const ParticipantInteraction = (): ReactElement => {
   ) : (
     <MessagesPane
       goToNextExchange={goToNextExchange}
+      autoDismiss
       exchange={interaction.exchanges[interaction.currentExchange]}
       participantId={participantId}
       readOnly={false}

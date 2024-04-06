@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 
 import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { mutations } from '@/config/queryClient';
@@ -24,6 +25,7 @@ type MessagesPaneProps = {
   exchange: Exchange;
   participantId: string;
   readOnly?: boolean;
+  autoDismiss?: boolean;
   goToNextExchange: () => void;
 };
 
@@ -61,6 +63,7 @@ const buildPrompt = (
 const MessagesPane = ({
   exchange: defaultExchange,
   participantId,
+  autoDismiss,
   readOnly = false,
   goToNextExchange,
 }: MessagesPaneProps): ReactElement => {
@@ -70,11 +73,12 @@ const MessagesPane = ({
   const [exchange, setExchange] = useState<Exchange>(defaultExchange);
   const [messages, setMessages] = useState<Message[]>([]);
   const [textAreaValue, setTextAreaValue] = useState('');
+  const [sentMessageCount, setSentMessageCount] = useState<number>(0);
 
   useEffect(() => {
     const defaultMessages: Message[] = [
       {
-        id: '0',
+        id: `${defaultExchange.id}`,
         content: defaultExchange.cue,
         sender: {
           id: '1',
@@ -83,7 +87,7 @@ const MessagesPane = ({
         },
       },
     ];
-    setMessages(defaultMessages);
+    setMessages((m) => _.uniqBy([...m, ...defaultMessages], 'id'));
     setExchange(defaultExchange);
   }, [defaultExchange]);
 
@@ -98,56 +102,67 @@ const MessagesPane = ({
         type: AgentType.User,
       },
     };
-    const updatedMessages = [...messages, newMessage];
+
     setMessages((m) => [...m, newMessage]);
+    setSentMessageCount((c) => c + 1);
 
-    // respond
-    const prompt = [
-      // initial settings
-      // ...
-      // this function requests the prompt as the first argument in string format
-      // we can not use it in this context as we are using a JSON prompt.
-      // if we simplify the prompt in the future we will be able to remove the line above
-      // and this function solely
-      ...buildPrompt(messages, newMessage),
-    ];
-
-    postChatBot(prompt)
-      .then((chatBotRes) => {
-        // actionData.content = chatBotRes.completion;
-        const response = {
-          id: uuidv4(),
-          content: chatBotRes.completion,
-          sender: {
-            id: '1',
-            name: 'Bot',
-            type: AgentType.Assistant,
-          },
-        };
-        // const updatedMessagesWithResponse = [...updatedMessages, response];
-        setMessages((m) => [...m, response]);
-      })
-      .finally(() => {
-        // set status back to idle
-        setStatus(Status.Idle);
-
-        // post comment from bot
-        // postAppDataAsync({
-        //   data: actionData,
-        //   type: AppDataTypes.BotComment,
-        // });
-        // postAction({
-        //   data: actionData,
-        //   type: AppActionsType.Create,
-        // });
-      });
-
-    // handle response
-    if (exchange.softLimit && updatedMessages.length > exchange.softLimit) {
+    // will not take updated message count in consideration so we add two
+    // https://react.dev/reference/react/useState#setstate-caveats
+    if (exchange.softLimit && sentMessageCount + 2 > exchange.softLimit) {
       const newExchange = { ...exchange };
       newExchange.completed = true;
       newExchange.completedAt = new Date();
-      setExchange(newExchange);
+      if (autoDismiss) {
+        newExchange.dismissed = true;
+        newExchange.dismissedAt = new Date();
+        setExchange(newExchange);
+        setStatus(Status.Idle);
+        setSentMessageCount(0);
+        goToNextExchange();
+      } else {
+        setExchange(newExchange);
+      }
+    } else {
+      // respond
+      const prompt = [
+        // initial settings
+        // ...
+        // this function requests the prompt as the first argument in string format
+        // we can not use it in this context as we are using a JSON prompt.
+        // if we simplify the prompt in the future we will be able to remove the line above
+        // and this function solely
+        ...buildPrompt(messages, newMessage),
+      ];
+
+      postChatBot(prompt)
+        .then((chatBotRes) => {
+          // actionData.content = chatBotRes.completion;
+          const response = {
+            id: uuidv4(),
+            content: chatBotRes.completion,
+            sender: {
+              id: '1',
+              name: 'Bot',
+              type: AgentType.Assistant,
+            },
+          };
+          // const updatedMessagesWithResponse = [...updatedMessages, response];
+          setMessages((m) => [...m, response]);
+        })
+        .finally(() => {
+          // set status back to idle
+          setStatus(Status.Idle);
+
+          // post comment from bot
+          // postAppDataAsync({
+          //   data: actionData,
+          //   type: AppDataTypes.BotComment,
+          // });
+          // postAction({
+          //   data: actionData,
+          //   type: AppActionsType.Create,
+          // });
+        });
     }
 
     // evaluate
