@@ -42,7 +42,7 @@ const buildPrompt = (
     {
       role: ChatbotRole.System,
       content:
-        'You are a chatbot interviewer that is chatting with someone that just attended a concert. You will ask them a main question and follow up with questions depending on their answers.',
+        'Vous êtes un chatbot qui conduit une interview avec une personne qui vient d’assister à un concert de musique électroacoustique. Vous posez une question principale et continuez avec d’autres questions afin de préciser les réponses données.',
     },
   ];
 
@@ -82,7 +82,7 @@ const MessagesPane = ({
         content: defaultExchange.cue,
         sender: {
           id: '1',
-          name: 'Bot',
+          name: 'Interviewer',
           type: AgentType.Assistant,
         },
       },
@@ -142,7 +142,7 @@ const MessagesPane = ({
             content: chatBotRes.completion,
             sender: {
               id: '1',
-              name: 'Bot',
+              name: 'Interviewer',
               type: AgentType.Assistant,
             },
           };
@@ -220,7 +220,11 @@ const MessagesPane = ({
                 spacing={2}
                 flexDirection={isYou ? 'row-reverse' : 'row'}
               >
-                {!isYou && <AvatarWithStatus online src="" />}
+                {!isYou && (
+                  <AvatarWithStatus src="" sx={{ bgcolor: '#5050d2' }}>
+                    😀
+                  </AvatarWithStatus>
+                )}
                 <ChatBubble
                   variant={isYou ? 'sent' : 'received'}
                   content={message.content}
