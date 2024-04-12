@@ -24,7 +24,7 @@ const ParticipantInteraction = (): ReactElement => {
     id: 0,
     description: 'Default Description',
     modelInstructions: '',
-    participantInstructions: `Bienvenue et merci de participer à notre étude sur les images mentales induites par l'écoute profonde (deep listening), images qui font font partie de l'œuvre. Un agent conversationnel vous posera quelques questions pour vous aider à décrire ce que vous avez perçu pendant l'écoute du concert de Luca Forcucci. Vos réponses sont entièrement anonymes et aucune donnée personnelle ne vous sera demandée (ne fournissez pas d’information personnelle afin de ne pas ouvrir la possibilité d'être identifié-e).`,
+    participantInstructions: `Bienvenue et merci de participer à notre étude sur les images mentales induites par l'écoute profonde (deep listening), images qui font font partie de l'œuvre. Un agent conversationnel vous posera quelques questions pour vous aider à décrire ce que vous avez perçu pendant l'écoute du concert de Luca Forcucci. Vos réponses sont entièrement anonymes et aucune donnée personnelle ne vous sera demandée (ne fournissez pas d'information personnelle afin de ne pas ouvrir la possibilité d'être identifié-e).`,
     participantInstructionsOnComplete: `Merci beaucoup! Vos indications nous seront précieuses pour évaluer l'occurrence et la nature des sensations induites par l'écoute. Cette évaluation fait partie de l'œuvre, et aide à la composition de nouvelles formes musicales.`,
     name: 'Default Name',
     currentExchange: 0,
@@ -62,7 +62,7 @@ const ParticipantInteraction = (): ReactElement => {
         description: 'Exchange 2 Description',
         instructions: 'Instructions',
         participantInstructionsOnComplete: ``,
-        cue: `Pourriez vous décrire s’il s'agissait plus de formes réelles ou imaginaires? Réalistes ou abstraites?`,
+        cue: `Merci! À présent, pourriez-vous décrire s'il s'agissait plus de formes réelles ou imaginaires? Réalistes ou abstraites?`,
         order: 2,
         messages: [],
         assistant: artificialAssistant,
@@ -201,19 +201,6 @@ const ParticipantInteraction = (): ReactElement => {
         {interaction.participantInstructionsOnComplete}
         <br />
         <br />
-        <a
-          href="https://linktr.ee/lucaforcucci"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Plus d’information sur l’artiste.
-        </a>
-        <br />
-        <a href="https://lnco.epfl.ch" target="_blank" rel="noreferrer">
-          Plus d’information sur les chercheurs.
-        </a>
-        <br />
-        <br />
         Cadeau! Écoutez ces concerts de Luca Forcucci en streaming!
         <br />
         <br />
@@ -231,6 +218,19 @@ const ParticipantInteraction = (): ReactElement => {
         <br />
         <a href="https://tinyurl.com/526xxa8w" target="_blank" rel="noreferrer">
           https://tinyurl.com/526xxa8w
+        </a>
+        <br />
+        <br />
+        <a
+          href="https://linktr.ee/lucaforcucci"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Plus d’information sur l’artiste.
+        </a>
+        <br />
+        <a href="https://lnco.epfl.ch" target="_blank" rel="noreferrer">
+          Plus d’information sur les chercheurs.
         </a>
       </Typography>
     </Box>

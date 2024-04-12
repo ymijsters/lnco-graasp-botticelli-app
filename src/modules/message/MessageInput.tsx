@@ -123,7 +123,7 @@ const MessageInput = ({
                 endIcon={<SendRoundedIcon />}
                 onClick={handleClick}
               >
-                Send
+                Envoyer
               </Button>
             </Stack>
           }
