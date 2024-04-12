@@ -26,6 +26,7 @@ export const mockMembers: CompleteMember[] = [
 ];
 
 export const mockItem: DiscriminatedItem = AppItemFactory({
+  id: '47a7898a-cd83-4474-a7b3-c7d68b62181d',
   name: 'app-starter-ts-vite',
   extra: { [ItemType.APP]: { url: 'http://localhost:3002' } },
   creator: mockMembers[0],

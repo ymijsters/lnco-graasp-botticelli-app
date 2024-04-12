@@ -10,6 +10,7 @@ import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
+import { AppDataTypes } from '@/config/appData';
 import { mutations } from '@/config/queryClient';
 import AgentType from '@/types/AgentType';
 import Exchange from '@/types/Exchange';
@@ -67,6 +68,7 @@ const MessagesPane = ({
   readOnly = false,
   goToNextExchange,
 }: MessagesPaneProps): ReactElement => {
+  const { mutateAsync: postAppDataAsync } = mutations.usePostAppData();
   const { mutateAsync: postChatBot } = mutations.usePostChatBot();
 
   const [status, setStatus] = useState<Status>(Status.Idle);
@@ -102,6 +104,13 @@ const MessagesPane = ({
         type: AgentType.User,
       },
     };
+
+    postAppDataAsync({
+      data: {
+        content,
+      },
+      type: AppDataTypes.ParticipantComment,
+    });
 
     setMessages((m) => [...m, newMessage]);
     setSentMessageCount((c) => c + 1);
@@ -146,18 +155,21 @@ const MessagesPane = ({
               type: AgentType.Assistant,
             },
           };
+
+          // post comment from bot
+          postAppDataAsync({
+            data: {
+              content: chatBotRes.completion,
+            },
+            type: AppDataTypes.AssistantComment,
+          });
+
           // const updatedMessagesWithResponse = [...updatedMessages, response];
           setMessages((m) => [...m, response]);
         })
         .finally(() => {
           // set status back to idle
           setStatus(Status.Idle);
-
-          // post comment from bot
-          // postAppDataAsync({
-          //   data: actionData,
-          //   type: AppDataTypes.BotComment,
-          // });
           // postAction({
           //   data: actionData,
           //   type: AppActionsType.Create,
