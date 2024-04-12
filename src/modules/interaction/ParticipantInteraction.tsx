@@ -118,8 +118,18 @@ const ParticipantInteraction = (): ReactElement => {
     updatedAt: new Date(),
   };
 
-  const [interaction, setInteraction] =
-    useState<Interaction>(defaultInteraction);
+  function load(key: string): Interaction {
+    const item = window.sessionStorage.getItem(key);
+    return item != null ? JSON.parse(item) : defaultInteraction;
+  }
+
+  const [interaction, setInteraction] = useState<Interaction>(
+    load('interaction'),
+  );
+
+  useEffect(() => {
+    window.sessionStorage.setItem('interaction', JSON.stringify(interaction));
+  }, [interaction]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent): string => {

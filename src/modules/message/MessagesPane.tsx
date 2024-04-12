@@ -71,11 +71,43 @@ const MessagesPane = ({
   const { mutateAsync: postAppDataAsync } = mutations.usePostAppData();
   const { mutateAsync: postChatBot } = mutations.usePostChatBot();
 
+  function loadMessages(): Message[] {
+    const item = window.sessionStorage.getItem('messages');
+    return item != null ? JSON.parse(item) : [];
+  }
+
+  function loadExchange(): Exchange {
+    const item = window.sessionStorage.getItem('exchange');
+    return item != null ? JSON.parse(item) : defaultExchange;
+  }
+
+  function loadSentMessageCount(): number {
+    const item = window.sessionStorage.getItem('sentMessageCount');
+    return item != null ? parseInt(item, 10) : 0;
+  }
+
   const [status, setStatus] = useState<Status>(Status.Idle);
-  const [exchange, setExchange] = useState<Exchange>(defaultExchange);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [exchange, setExchange] = useState<Exchange>(loadExchange());
+  const [messages, setMessages] = useState<Message[]>(loadMessages());
   const [textAreaValue, setTextAreaValue] = useState('');
-  const [sentMessageCount, setSentMessageCount] = useState<number>(0);
+  const [sentMessageCount, setSentMessageCount] = useState<number>(
+    loadSentMessageCount(),
+  );
+
+  useEffect(() => {
+    window.sessionStorage.setItem('messages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem('exchange', JSON.stringify(exchange));
+  }, [exchange]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(
+      'sentMessageCount',
+      sentMessageCount.toString(),
+    );
+  }, [sentMessageCount]);
 
   useEffect(() => {
     const defaultMessages: Message[] = [
