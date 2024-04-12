@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 
 import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -120,6 +120,22 @@ const ParticipantInteraction = (): ReactElement => {
 
   const [interaction, setInteraction] =
     useState<Interaction>(defaultInteraction);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
+      if (!interaction.completed) {
+        // Perform actions before the component unloads
+        event.preventDefault();
+
+        // eslint-disable-next-line no-alert,no-restricted-globals
+        confirm('Confirm refresh');
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [interaction]);
 
   function startInteraction(): void {
     const updatedInteraction = { ...interaction };
