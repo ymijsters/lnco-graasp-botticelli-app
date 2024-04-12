@@ -122,14 +122,21 @@ const ParticipantInteraction = (): ReactElement => {
     useState<Interaction>(defaultInteraction);
 
   useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent): string => {
       if (!interaction.completed) {
         // Perform actions before the component unloads
         event.preventDefault();
 
-        // eslint-disable-next-line no-alert,no-restricted-globals
-        confirm('Confirm refresh');
+        // Chrome requires returnValue to be set
+        // Prompt the user before leaving
+        const confirmationMessage = 'Are you sure you want to leave?';
+
+        // Chrome requires returnValue to be set
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = confirmationMessage; // For Chrome
+        return confirmationMessage; // For standard browsers
       }
+      return '';
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
