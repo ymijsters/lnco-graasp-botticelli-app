@@ -81,7 +81,7 @@ const ParticipantInteraction = (): ReactElement => {
         description: 'Exchange 3 Description',
         instructions: 'Instructions',
         participantInstructionsOnComplete: ``,
-        cue: `Merci! Une dernière question s’il vous plaît! Où se trouvait votre corps par rapport à ces images?  Vous les observiez depuis un point de vue extérieur, depuis le bas ou le haut ou latéralement, ou alors aviez- vous la sensation d'être immergé dans un espace qui vous entoure, d'être transporté dans un lieu?`,
+        cue: `Merci! Une dernière question s’il vous plaît! Où se trouvait votre corps par rapport à ces images?  Vous les observiez depuis un point de vue extérieur, depuis le bas ou le haut ou latéralement, ou alors aviez-vous la sensation d'être immergé dans un espace qui vous entoure, d'être transporté dans un lieu?`,
         order: 3,
         messages: [],
         assistant: artificialAssistant,
