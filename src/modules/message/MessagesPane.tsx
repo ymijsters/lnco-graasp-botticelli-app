@@ -10,8 +10,8 @@ import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AppDataTypes } from '@/config/appData';
 import { mutations } from '@/config/queryClient';
+import Agent from '@/types/Agent';
 import AgentType from '@/types/AgentType';
 import Exchange from '@/types/Exchange';
 import { Message } from '@/types/Message';
@@ -22,221 +22,200 @@ import ChatBubble from './ChatBubble';
 import MessageInput from './MessageInput';
 import MessageLoader from './MessageLoader';
 
+// Props type definition for MessagesPane component
 type MessagesPaneProps = {
-  exchange: Exchange;
-  participantId: string;
-  readOnly?: boolean;
-  autoDismiss?: boolean;
+  currentExchange: Exchange;
+  setExchange: (updatedExchange: Exchange) => void;
+  interactionDescription: string;
+  pastMessages: Message[];
+  participant: Agent;
+  autoDismiss: boolean;
   goToNextExchange: () => void;
+  readOnly?: boolean;
 };
 
-const buildPrompt = (
-  threadMessages: Message[],
-  userMessage: Message,
-): Array<ChatBotMessage> => {
-  // define the message to send to OpenAI with the initial prompt first if needed (role system).
-  // Each call to OpenAI must contain the whole history of the messages.
-  // const finalPrompt: Array<ChatBotMessage> = initialPrompt
-  //   ? [{ role: ChatbotRole.System, content: initialPrompt }]
-  //   : [];
-  const finalPrompt = [
-    {
-      role: ChatbotRole.System,
-      content:
-        'Vous êtes un chatbot qui conduit une interview avec une personne qui vient d’assister à un concert de musique électroacoustique. Vous allez poser trois questions principales. ' +
-        'Chaque question principale est suivie de quatre autres questions afin de préciser les réponses données. ' +
-        'Les trois questions principales sont: ' +
-        "(1) Quelles sont les images mentales les plus fortes ou les plus claires que vous avez perçues pendant l'écoute du concert? " +
-        "(2) Pourriez-vous décrire s'il s'agissait plus de formes réelles ou imaginaires? Réalistes ou abstraites? " +
-        "(3) Où se trouvait votre corps par rapport à ces images?  Vous les observiez depuis un point de vue extérieur, depuis le bas ou le haut ou latéralement, ou alors aviez-vous la sensation d'être immergé dans un espace qui vous entoure, d'être transporté dans un lieu?",
-    },
-  ];
-
-  threadMessages.forEach((msg) => {
-    const msgRole =
-      msg.sender.type === AgentType.Assistant
-        ? ChatbotRole.Assistant
-        : ChatbotRole.User;
-    finalPrompt.push({ role: msgRole, content: msg.content });
-  });
-
-  // add the last user's message in the prompt
-  finalPrompt.push({ role: ChatbotRole.User, content: userMessage.content });
-
-  return finalPrompt;
-};
-
+// Main component function: MessagesPane
 const MessagesPane = ({
-  exchange: defaultExchange,
-  participantId,
+  currentExchange,
+  setExchange,
+  interactionDescription,
+  pastMessages,
+  participant,
   autoDismiss,
-  readOnly = false,
   goToNextExchange,
+  readOnly = false,
 }: MessagesPaneProps): ReactElement => {
-  const { mutateAsync: postAppDataAsync } = mutations.usePostAppData();
+  // Hook to post chat messages asynchronously using mutation
   const { mutateAsync: postChatBot } = mutations.usePostChatBot();
 
-  function loadMessages(): Message[] {
-    const item = window.sessionStorage.getItem('messages');
-    return item != null ? JSON.parse(item) : [];
-  }
+  // Function to build the prompt for the chatbot based on past messages and user input
+  const buildPrompt = (
+    threadMessages: Message[],
+    userMessage: Message,
+  ): Array<ChatBotMessage> => {
+    const prompt = [
+      currentExchange.assistant.description,
+      interactionDescription,
+      currentExchange.chatbotInstructions,
+    ].map((txt: string = '') => ({ role: ChatbotRole.System, content: txt }));
 
-  function loadExchange(): Exchange {
-    const item = window.sessionStorage.getItem('exchange');
-    return item != null ? JSON.parse(item) : defaultExchange;
-  }
+    // Loop through threadMessages to add them to the prompt
+    threadMessages.forEach((msg) => {
+      const msgRole =
+        msg.sender.type === AgentType.Assistant
+          ? ChatbotRole.Assistant
+          : ChatbotRole.User;
+      prompt.push({ role: msgRole, content: msg.content });
+    });
 
-  function loadSentMessageCount(): number {
-    const item = window.sessionStorage.getItem('sentMessageCount');
-    return item != null ? parseInt(item, 10) : 0;
-  }
+    // Add the last user message to the prompt
+    prompt.push({ role: ChatbotRole.User, content: userMessage.content });
 
+    return prompt;
+  };
+
+  // State to manage the current status of the component (idle or loading)
   const [status, setStatus] = useState<Status>(Status.Idle);
-  const [exchange, setExchange] = useState<Exchange>(loadExchange());
-  const [messages, setMessages] = useState<Message[]>(loadMessages());
-  const [textAreaValue, setTextAreaValue] = useState('');
+
+  // State to manage the list of messages within the current exchange
+  const [msgs, setMessages] = useState<Message[]>(currentExchange.messages);
+
+  useEffect(() => {
+    if (msgs.length === 0) {
+      setMessages([
+        {
+          id: uuidv4(),
+          content: currentExchange.participantCue,
+          sender: currentExchange.assistant,
+        },
+      ]);
+    }
+  }, [currentExchange.assistant, currentExchange.participantCue, msgs.length]);
+
+  // State to keep track of the number of messages sent in the current exchange
   const [sentMessageCount, setSentMessageCount] = useState<number>(
-    loadSentMessageCount(),
+    currentExchange.messages.length,
   );
 
   useEffect(() => {
-    window.sessionStorage.setItem('messages', JSON.stringify(messages));
-  }, [messages]);
+    setExchange({ ...currentExchange, messages: msgs });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [msgs, setExchange]);
 
-  useEffect(() => {
-    window.sessionStorage.setItem('exchange', JSON.stringify(exchange));
-  }, [exchange]);
+  /**
+   * @function dismissExchange
+   * @description Resets the messages state, marks the current exchange as dismissed, and updates the dismissed timestamp.
+   * It also resets the count of sent messages and proceeds to the next exchange in the sequence.
+   */
+  function dismissExchange(): void {
+    setMessages([]);
 
-  useEffect(() => {
-    window.sessionStorage.setItem(
-      'sentMessageCount',
-      sentMessageCount.toString(),
-    );
-  }, [sentMessageCount]);
+    // Mark the exchange as dismissed and update the dismissed timestamp
+    const updatedExchange = { ...currentExchange };
+    updatedExchange.dismissed = true;
+    updatedExchange.dismissedAt = new Date();
 
-  useEffect(() => {
-    const defaultMessages: Message[] = [
-      {
-        id: `${defaultExchange.id}`,
-        content: defaultExchange.cue,
-        sender: {
-          id: '1',
-          name: 'Interviewer',
-          type: AgentType.Assistant,
-        },
-      },
-    ];
-    setMessages((m) => _.uniqBy([...m, ...defaultMessages], 'id'));
-    setExchange(defaultExchange);
-  }, [defaultExchange]);
+    setExchange(updatedExchange);
+    setSentMessageCount(0);
 
+    goToNextExchange();
+  }
+
+  /**
+   * @function handlePostChatbot
+   * @description Posts a new message to the chatbot and handles the chatbot's response.
+   * @param {Message} newMessage - The new message to send to the chatbot.
+   */
+  function handlePostChatbot(newMessage: Message): void {
+    // Build the prompt for the chatbot using the existing messages and the new message
+    const prompt = [...buildPrompt(msgs, newMessage)];
+
+    // Send the prompt to the chatbot API and handle the response
+    postChatBot(prompt)
+      .then((chatBotRes) => {
+        const response = {
+          id: uuidv4(),
+          content: chatBotRes.completion,
+          sender: currentExchange.assistant,
+        };
+
+        // Add the chatbot's response to the list of messages
+        setMessages((m) => [...m, response]);
+      })
+      .finally(() => {
+        // Reset the status back to idle after the chatbot responds
+        setStatus(Status.Idle);
+      });
+  }
+
+  // Function to save a new user message and handle chatbot response logic
   const saveNewMessage = ({ content }: { content: string }): void => {
     setStatus(Status.Loading);
+
+    // Create a new message object with the user's input
     const newMessage: Message = {
       id: uuidv4(),
       content,
-      sender: {
-        id: participantId,
-        name: 'User',
-        type: AgentType.User,
-      },
+      sender: participant,
     };
 
-    postAppDataAsync({
-      data: {
-        content,
-      },
-      type: AppDataTypes.ParticipantComment,
-    });
+    // Update the messages state with the new message
+    const updatedMessages = [...msgs, newMessage];
+    setMessages(updatedMessages);
 
-    setMessages((m) => [...m, newMessage]);
+    // Increment the count of sent messages
     setSentMessageCount((c) => c + 1);
 
-    // will not take updated message count in consideration so we add two
-    // https://react.dev/reference/react/useState#setstate-caveats
-    if (exchange.softLimit && sentMessageCount + 2 > exchange.softLimit) {
-      const newExchange = { ...exchange };
+    // Check if the exchange should be completed based on the number of follow-up questions
+    if (sentMessageCount + 1 > currentExchange.nbFollowUpQuestions) {
+      const newExchange = { ...currentExchange };
       newExchange.completed = true;
-      newExchange.completedAt = new Date();
+      newExchange.completedAt = newExchange.completedAt || new Date();
+
       if (autoDismiss) {
+        // Auto-dismiss the exchange if autoDismiss is true
         newExchange.dismissed = true;
         newExchange.dismissedAt = new Date();
-        setExchange(newExchange);
         setStatus(Status.Idle);
         setSentMessageCount(0);
+        setMessages([]);
         goToNextExchange();
       } else {
-        setExchange(newExchange);
+        // Otherwise, just update the exchange and handle chatbot response
+        handlePostChatbot(newMessage);
       }
+      setExchange({ ...newExchange, messages: updatedMessages });
     } else {
-      // respond
-      const prompt = [
-        // initial settings
-        // ...
-        // this function requests the prompt as the first argument in string format
-        // we can not use it in this context as we are using a JSON prompt.
-        // if we simplify the prompt in the future we will be able to remove the line above
-        // and this function solely
-        ...buildPrompt(messages, newMessage),
-      ];
-
-      postChatBot(prompt)
-        .then((chatBotRes) => {
-          // actionData.content = chatBotRes.completion;
-          const response = {
-            id: uuidv4(),
-            content: chatBotRes.completion,
-            sender: {
-              id: '1',
-              name: 'Interviewer',
-              type: AgentType.Assistant,
-            },
-          };
-
-          // post comment from bot
-          postAppDataAsync({
-            data: {
-              content: chatBotRes.completion,
-            },
-            type: AppDataTypes.AssistantComment,
-          });
-
-          // const updatedMessagesWithResponse = [...updatedMessages, response];
-          setMessages((m) => [...m, response]);
-        })
-        .finally(() => {
-          // set status back to idle
-          setStatus(Status.Idle);
-          // postAction({
-          //   data: actionData,
-          //   type: AppActionsType.Create,
-          // });
-        });
+      // If not completed, continue with the chatbot response
+      handlePostChatbot(newMessage);
     }
-
-    // evaluate
-    // ...
   };
 
+  // Effect to start the exchange when the component mounts or currentExchange changes
   useEffect((): void => {
     const startExchange = (): void => {
-      const updatedExchange = { ...exchange };
+      const updatedExchange = { ...currentExchange };
       updatedExchange.started = true;
       updatedExchange.startedAt = new Date();
       setExchange(updatedExchange);
     };
-    // do not start if this is readonly
-    if (!readOnly && exchange && !exchange.started) {
+
+    // Start the exchange only if it hasn't been started and is not read-only
+    if (currentExchange && !currentExchange.started) {
       startExchange();
     }
-  }, [exchange, readOnly]);
+  }, [currentExchange, setExchange]);
 
-  if (!exchange) {
+  // Render a fallback if no current exchange is available
+  if (!currentExchange) {
     return <>Exchange Not Found</>;
   }
 
+  // Determine whether to show participant instructions after completing the exchange
   const showParticipantInstructionsOnComplete =
-    exchange.completed && exchange.participantInstructionsOnComplete;
+    currentExchange.completed &&
+    currentExchange.participantInstructionsOnComplete &&
+    !readOnly;
 
   return (
     <Paper
@@ -259,29 +238,35 @@ const MessagesPane = ({
         }}
       >
         <Stack spacing={2} justifyContent="flex-end">
-          {messages.map((message: Message, index: number) => {
-            const isYou = message?.sender?.id === participantId;
+          {[...pastMessages, ...(currentExchange.dismissed ? [] : msgs)].map(
+            (message: Message, index: number) => {
+              const isYou = message?.sender?.id === participant.id;
 
-            return (
-              <Stack
-                key={index}
-                direction="row"
-                spacing={2}
-                flexDirection={isYou ? 'row-reverse' : 'row'}
-              >
-                {!isYou && (
-                  <AvatarWithStatus src="" sx={{ bgcolor: '#5050d2' }}>
-                    😀
-                  </AvatarWithStatus>
-                )}
-                <ChatBubble
-                  variant={isYou ? 'sent' : 'received'}
-                  content={message.content}
-                  sender={message.sender}
-                />
-              </Stack>
-            );
-          })}
+              return (
+                <Stack
+                  key={index}
+                  direction="row"
+                  spacing={2}
+                  flexDirection={isYou ? 'row-reverse' : 'row'}
+                >
+                  {!isYou && (
+                    <AvatarWithStatus
+                      src={currentExchange.assistant.imageUrl}
+                      sx={{ bgcolor: '#5050d2' }}
+                    >
+                      {currentExchange.assistant.name.slice(0, 2) || '🤖'}
+                    </AvatarWithStatus>
+                  )}
+                  <ChatBubble
+                    variant={isYou ? 'sent' : 'received'}
+                    content={message.content}
+                    sender={message.sender}
+                  />
+                </Stack>
+              );
+            },
+          )}
+
           {status === Status.Loading && (
             <Box sx={{ maxWidth: '60%', minWidth: 'auto' }}>
               <Stack
@@ -294,28 +279,19 @@ const MessagesPane = ({
               </Stack>
             </Box>
           )}
+
           {showParticipantInstructionsOnComplete && (
             <Alert variant="filled" color="success">
-              {exchange.participantInstructionsOnComplete}
+              {currentExchange.participantInstructionsOnComplete}
             </Alert>
           )}
         </Stack>
       </Box>
-      {!(readOnly || exchange.dismissed) && (
+      {!currentExchange.dismissed && !readOnly && (
         <MessageInput
-          exchange={exchange}
-          goToNextExchange={goToNextExchange}
-          textAreaValue={textAreaValue}
-          setTextAreaValue={setTextAreaValue}
-          setExchange={setExchange}
-          completed={exchange.completed}
-          onSubmit={(): void => {
-            saveNewMessage({
-              // keyPressEvents,
-              // sender: participantId,
-              content: textAreaValue,
-            });
-          }}
+          dismissExchange={() => dismissExchange()}
+          onSubmit={saveNewMessage}
+          exchangeCompleted={currentExchange.completed}
         />
       )}
     </Paper>

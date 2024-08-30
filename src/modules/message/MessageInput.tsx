@@ -1,4 +1,5 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import CheckIcon from '@mui/icons-material/CheckRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
@@ -8,50 +9,36 @@ import FormControl from '@mui/material/FormControl';
 import Textarea from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
 
-import Exchange from '@/types/Exchange';
-
 export type MessageInputProps = {
-  exchange: Exchange;
-  textAreaValue: string;
-  setTextAreaValue: (value: string) => void;
-  onSubmit: (keyPressData: KeyPressData[]) => void;
-  completed: boolean;
-  setExchange: (exchange: Exchange) => void;
-  goToNextExchange: () => void;
+  dismissExchange: () => void;
+  onSubmit: ({ content }: { content: string }) => void;
+  exchangeCompleted: boolean;
 };
 
-type KeyPressData = {
-  timestamp: number;
-  key: string;
-};
-
+// Main component function: MessageInput
 const MessageInput = ({
-  exchange,
-  textAreaValue,
-  setTextAreaValue,
+  dismissExchange,
   onSubmit,
-  completed,
-  setExchange,
-  goToNextExchange,
+  exchangeCompleted,
 }: MessageInputProps): ReactElement => {
+  // State to manage the value of the textarea input
+  const [textAreaValue, setTextAreaValue] = useState('');
+
+  // Ref to get direct access to the textarea DOM element
   const textAreaRef = useRef<HTMLDivElement>(null);
-  const [keypressData, setKeypressData] = useState<KeyPressData[]>([]);
 
-  function dismissExchange(): void {
-    const updatedExchange = { ...exchange };
-    updatedExchange.dismissed = true;
-    updatedExchange.dismissedAt = new Date();
-    setExchange(updatedExchange);
-    goToNextExchange();
-  }
+  // Hook for internationalization (i18n) translation
+  const { t } = useTranslation();
 
-  // const focusOnTextArea = (): void => {
-  //   const textareaElement = textAreaRef?.current?.querySelector('textarea');
-  //   if (textareaElement) {
-  //     textareaElement.focus();
-  //   }
-  // };
+  // Function to focus on the textarea input
+  const focusOnTextArea = (): void => {
+    const textareaElement = textAreaRef?.current?.querySelector('textarea');
+    if (textareaElement) {
+      textareaElement.focus();
+    }
+  };
 
+  // Function to remove focus from the textarea input
   const blurTextArea = (): void => {
     const textareaElement = textAreaRef?.current?.querySelector('textarea');
     if (textareaElement) {
@@ -59,22 +46,24 @@ const MessageInput = ({
     }
   };
 
+  // Effect to focus on the textarea whenever the component renders
   useEffect(() => {
-    // focusOnTextArea();
+    focusOnTextArea();
   });
 
+  // Function to handle the send button click
   const handleClick = (): void => {
     if (textAreaValue.trim() !== '') {
-      onSubmit(keypressData);
+      onSubmit({ content: textAreaValue });
+
       setTextAreaValue('');
 
-      // focus on the text area
-      // focusOnTextArea();
-      // blue text area
+      focusOnTextArea();
       blurTextArea();
     }
   };
 
+  // Function to handle the dismiss button click
   const handleDismiss = (): void => {
     dismissExchange();
   };
@@ -83,7 +72,7 @@ const MessageInput = ({
     <Box sx={{ px: 2, pb: 3 }}>
       <FormControl sx={{ width: '100%' }}>
         <Textarea
-          placeholder="Votre réponse ici…"
+          placeholder={t('MESSAGE_BOX.INSERT_HERE')}
           aria-label="Message"
           ref={textAreaRef}
           onChange={(e): void => {
@@ -105,7 +94,7 @@ const MessageInput = ({
                 px: 1,
               }}
             >
-              {completed && (
+              {exchangeCompleted && ( // Conditionally render the "Done" button if exchange is completed
                 <Button
                   size="small"
                   color="success"
@@ -113,7 +102,7 @@ const MessageInput = ({
                   sx={{ alignSelf: 'center', borderRadius: 'sm' }}
                   onClick={handleDismiss}
                 >
-                  Done
+                  {t('MESSAGE_BOX.DONE')}
                 </Button>
               )}
               <Button
@@ -123,22 +112,13 @@ const MessageInput = ({
                 endIcon={<SendRoundedIcon />}
                 onClick={handleClick}
               >
-                Envoyer
+                {t('MESSAGE_BOX.SEND')}
               </Button>
             </Stack>
           }
           onKeyDown={(event): void => {
-            setKeypressData([
-              ...keypressData,
-              {
-                timestamp: event.timeStamp,
-                key: event.key,
-              },
-            ]);
             if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-              handleClick();
-              // reset keypress data
-              setKeypressData([]);
+              handleClick(); // Submit the message on "Ctrl+Enter" or "Cmd+Enter"
             }
           }}
           sx={{

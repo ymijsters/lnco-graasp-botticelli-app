@@ -1,23 +1,64 @@
 import { FC, ReactElement, createContext, useContext } from 'react';
 
+import { v4 as uuidv4 } from 'uuid';
+
+import {
+  AssistantsSettingsType,
+  ChatSettingsType,
+  ExchangesSettingsType,
+} from '@/config/appSettings';
+
 import { hooks, mutations } from '../../config/queryClient';
 import Loader from '../common/Loader';
 
 // mapping between Setting names and their data type
-// eslint-disable-next-line @typescript-eslint/ban-types
-type AllSettingsType = {};
+type AllSettingsType = {
+  assistants: AssistantsSettingsType;
+  chat: ChatSettingsType;
+  exchanges: ExchangesSettingsType;
+};
 
 // default values for the data property of settings by name
-const defaultSettingsValues: AllSettingsType = {};
+export const defaultSettingsValues: AllSettingsType = {
+  assistants: {
+    assistantList: [{ id: uuidv4(), name: '', description: '' }],
+  },
+  chat: {
+    description: '',
+    participantInstructions: '',
+    participantEndText: '',
+  },
+  exchanges: {
+    exchangeList: [
+      {
+        id: uuidv4(),
+        assistant: {
+          id: '',
+          name: '',
+          description: '',
+        },
+        description: '',
+        chatbotInstructions: '',
+        participantCue: '',
+        participantInstructionsOnComplete: '',
+        nbFollowUpQuestions: 0,
+        hardLimit: false,
+      },
+    ],
+  },
+};
 
 // list of the settings names
 const ALL_SETTING_NAMES = [
   // name of your settings
+  'assistants',
+  'chat',
+  'exchanges',
 ] as const;
 
 // automatically generated types
 type AllSettingsNameType = (typeof ALL_SETTING_NAMES)[number];
-type AllSettingsDataType = AllSettingsType[keyof AllSettingsType];
+export type AllSettingsDataType = AllSettingsType[keyof AllSettingsType];
 
 export type SettingsContextType = AllSettingsType & {
   saveSettings: (
@@ -75,14 +116,17 @@ export const SettingsProvider: FC<Prop> = ({ children }) => {
     if (isSuccess) {
       const allSettings: AllSettingsType = ALL_SETTING_NAMES.reduce(
         <T extends AllSettingsNameType>(acc: AllSettingsType, key: T) => {
-          // todo: types are not inferred correctly here
-          // @ts-ignore
           const setting = appSettingsList.find((s) => s.name === key);
-          const settingData = setting?.data;
-          acc[key] = settingData as AllSettingsType[T];
+          if (setting) {
+            const settingData =
+              setting?.data as unknown as AllSettingsType[typeof key];
+            acc[key] = settingData;
+          } else {
+            acc[key] = defaultSettingsValues[key];
+          }
           return acc;
         },
-        {},
+        defaultSettingsValues,
       );
       return {
         ...allSettings,
