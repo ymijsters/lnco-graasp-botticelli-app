@@ -80,7 +80,6 @@ const Conversations: FC<Props> = ({
           ))}
         </Select>
       </FormControl>
-
       {checkedOutMember.id === '' ? null : (
         <Box py={2} px={20} border="1px solid #ccc" borderRadius="8px">
           {checkedOutInteraction ? (
