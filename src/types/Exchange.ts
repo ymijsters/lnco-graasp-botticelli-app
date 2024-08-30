@@ -1,23 +1,14 @@
+import { ExchangeSettings } from '@/config/appSettings';
+
 import Agent from './Agent';
 import { Message } from './Message';
-import Trigger from './Trigger';
 
-type Exchange = {
-  id: number;
-  name: string;
-  description: string;
-  instructions: string;
-  participantInstructionsOnComplete: string;
-  cue: string;
-  order: number;
-  messages: Message[];
+type Exchange = ExchangeSettings & {
   assistant: Agent;
-  triggers: Trigger[];
+  messages: Message[];
   started: boolean;
   completed: boolean;
   dismissed: boolean;
-  softLimit: number;
-  hardLimit: number;
   startedAt?: Date;
   completedAt?: Date;
   dismissedAt?: Date;

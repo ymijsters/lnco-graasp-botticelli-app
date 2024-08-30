@@ -5165,9 +5165,9 @@ __metadata:
   linkType: hard
 
 "async@npm:^3.2.0":
-  version: 3.2.5
-  resolution: "async@npm:3.2.5"
-  checksum: 10/323c3615c3f0ab1ac25a6f953296bc0ac3213d5e0f1c0debdb12964e55963af288d570293c11e44f7967af58c06d2a88d0ea588c86ec0fbf62fa98037f604a0f
+  version: 3.2.6
+  resolution: "async@npm:3.2.6"
+  checksum: 10/cb6e0561a3c01c4b56a799cc8bab6ea5fef45f069ab32500b6e19508db270ef2dffa55e5aed5865c5526e9907b1f8be61b27530823b411ffafb5e1538c86c368
   languageName: node
   linkType: hard
 
@@ -6009,11 +6009,11 @@ __metadata:
   linkType: hard
 
 "core-js-compat@npm:^3.37.1, core-js-compat@npm:^3.38.0":
-  version: 3.38.0
-  resolution: "core-js-compat@npm:3.38.0"
+  version: 3.38.1
+  resolution: "core-js-compat@npm:3.38.1"
   dependencies:
     browserslist: "npm:^4.23.3"
-  checksum: 10/7ebdca6b305c9c470980e1f7e7a3d759add7cb754bff62926242907ee4d1d4e8bb13f70eb9a7d7769e0f63aec3f4cca83abf60f502286853b45d4b63a01c25ed
+  checksum: 10/4e2f219354fd268895f79486461a12df96f24ed307321482fe2a43529c5a64e7c16bcba654980ba217d603444f5141d43a79058aeac77511085f065c5da72207
   languageName: node
   linkType: hard
 
@@ -6495,9 +6495,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.4":
-  version: 1.5.11
-  resolution: "electron-to-chromium@npm:1.5.11"
-  checksum: 10/4342e1a32eba710a6327fa19dd012e2a7c3133151c646d80dec9fba8e3e0dcc1d19438ae561c10d86243f1bae7dc71a01d9dfd36e07e30836e45b214cbd07a25
+  version: 1.5.12
+  resolution: "electron-to-chromium@npm:1.5.12"
+  checksum: 10/6e5ec71e211de06f15147f42eaf8e71bc4dd73da29ce6611046a57614b7d220ffd8671b4fb424161f278498bb47880fccf7648ccbfb8b019e34d38db43520cea
   languageName: node
   linkType: hard
 
@@ -11689,7 +11689,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^4.13.0":
+"rollup@npm:^4.13.0, rollup@npm:^4.20.0":
   version: 4.21.0
   resolution: "rollup@npm:4.21.0"
   dependencies:
@@ -12848,9 +12848,9 @@ __metadata:
   linkType: hard
 
 "undici-types@npm:~6.19.2":
-  version: 6.19.6
-  resolution: "undici-types@npm:6.19.6"
-  checksum: 10/0ea9bc25762a86597d095b3772f6cec0bcabb796c339f7dfa2bd601c745a480289eb2939848dc285a56d4f94f50c475868160d8d6d3f54e823f1faf7ea9e9468
+  version: 6.19.8
+  resolution: "undici-types@npm:6.19.8"
+  checksum: 10/cf0b48ed4fc99baf56584afa91aaffa5010c268b8842f62e02f752df209e3dea138b372a60a963b3b2576ed932f32329ce7ddb9cb5f27a6c83040d8cd74b7a70
   languageName: node
   linkType: hard
 
@@ -13184,13 +13184,13 @@ __metadata:
   linkType: hard
 
 "vite@npm:^5.0.0":
-  version: 5.4.1
-  resolution: "vite@npm:5.4.1"
+  version: 5.4.2
+  resolution: "vite@npm:5.4.2"
   dependencies:
     esbuild: "npm:^0.21.3"
     fsevents: "npm:~2.3.3"
     postcss: "npm:^8.4.41"
-    rollup: "npm:^4.13.0"
+    rollup: "npm:^4.20.0"
   peerDependencies:
     "@types/node": ^18.0.0 || >=20.0.0
     less: "*"
@@ -13222,7 +13222,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10/1cf22e5a8ec782ea9417a77ad4b16e518f69cf23c99a5af5bb92dc4acbfce70109a35a35faea8fc0789f4637b6304618f6b84e4c5dfe3c9c2875dff7d749b02d
+  checksum: 10/c449f9295060fa88c9b5cc1bd17c2de198deae596b7da1250db9662fb15e7b21e0dbe9a40a9106fb7438b1231494b169457e809ecbb65e732648d87dd284ab23
   languageName: node
   linkType: hard
 

@@ -1,147 +1,138 @@
-import { ReactElement, useEffect, useState } from 'react';
+import {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
+import { useLocalContext } from '@graasp/apps-query-client';
+
+import {
+  defaultAssistant,
+  defaultExchange,
+  defaultInteraction,
+  defaultUser,
+} from '@/config/config';
+import { hooks, mutations } from '@/config/queryClient';
 import { START_INTERACTION_BUTTON_CY } from '@/config/selectors';
 import MessagesPane from '@/modules/message/MessagesPane';
 import Agent from '@/types/Agent';
 import AgentType from '@/types/AgentType';
+import Exchange from '@/types/Exchange';
 import Interaction from '@/types/Interaction';
 
+import { useSettings } from '../context/SettingsContext';
+
+// Main component: ParticipantInteraction
 const ParticipantInteraction = (): ReactElement => {
-  const participantId = '0';
+  // Getting the participant ID from local context
+  const { memberId: participantId } = useLocalContext();
 
-  const artificialAssistant: Agent = {
-    id: '1',
-    name: 'Interviewer',
-    description: 'Assistant Description',
-    type: AgentType.Assistant,
+  const { data: appDatas } = hooks.useAppData<Interaction>();
+  const { mutate: postAppData } = mutations.usePostAppData();
+  const { mutate: patchAppData } = mutations.usePatchAppData();
+  const { chat, exchanges } = useSettings();
+
+  const { t } = useTranslation();
+
+  // Define the current member as an agent, merging with the default user
+  const currentMember: Agent = {
+    ...defaultUser,
+    ...hooks
+      .useAppContext()
+      // Find the member in app context data by participant ID
+      .data?.members.find((member) => member.id === participantId),
   };
 
-  const defaultInteraction: Interaction = {
-    id: 0,
-    description: 'Default Description',
-    modelInstructions: '',
-    participantInstructions: `Bienvenue et merci de participer à notre étude sur les images mentales induites par l'écoute profonde (deep listening), images qui font font partie de l'œuvre. Un agent conversationnel vous posera quelques questions pour vous aider à décrire ce que vous avez perçu pendant l'écoute du concert de Luca Forcucci. Vos réponses sont entièrement anonymes et aucune donnée personnelle ne vous sera demandée (ne fournissez pas d'information personnelle afin de ne pas ouvrir la possibilité d'être identifié-e).`,
-    participantInstructionsOnComplete: `Merci beaucoup! Vos indications nous seront précieuses pour évaluer l'occurrence et la nature des sensations induites par l'écoute. Cette évaluation fait partie de l'œuvre, et aide à la composition de nouvelles formes musicales.`,
-    name: 'Default Name',
-    currentExchange: 0,
-    started: false,
-    completed: false,
-    participant: {
-      id: participantId,
-      type: AgentType.Assistant,
-      description: 'User Description',
-      name: 'User',
-    },
-    exchanges: [
-      {
-        id: 0,
-        name: 'Exchange 1',
-        description: 'Exchange 1 Description',
-        instructions: 'Instructions',
-        participantInstructionsOnComplete: ``,
-        cue: `Quelles sont les images mentales les plus fortes ou les plus claires que vous avez perçues pendant l'écoute du concert? Ce pourraient être des visions brèves pendant un moment de somnolence, ou des images persistantes qui vous sont apparues (les yeux ouverts ou fermés).`,
-        order: 0,
-        messages: [],
-        assistant: artificialAssistant,
-        triggers: [],
-        started: false,
-        completed: false,
-        dismissed: false,
-        softLimit: 5,
-        hardLimit: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 1,
-        name: 'Exchange 2',
-        description: 'Exchange 2 Description',
-        instructions: 'Instructions',
-        participantInstructionsOnComplete: ``,
-        cue: `Merci! À présent, pourriez-vous décrire s'il s'agissait plus de formes réelles ou imaginaires? Réalistes ou abstraites?`,
-        order: 2,
-        messages: [],
-        assistant: artificialAssistant,
-        triggers: [],
-        started: false,
-        completed: false,
-        dismissed: false,
-        softLimit: 5,
-        hardLimit: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 2,
-        name: 'Exchange 3',
-        description: 'Exchange 3 Description',
-        instructions: 'Instructions',
-        participantInstructionsOnComplete: ``,
-        cue: `Merci! Une dernière question s’il vous plaît! Où se trouvait votre corps par rapport à ces images?  Vous les observiez depuis un point de vue extérieur, depuis le bas ou le haut ou latéralement, ou alors aviez-vous la sensation d'être immergé dans un espace qui vous entoure, d'être transporté dans un lieu?`,
-        order: 3,
-        messages: [],
-        assistant: artificialAssistant,
-        triggers: [],
-        started: false,
-        completed: false,
-        dismissed: false,
-        softLimit: 5,
-        hardLimit: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 3,
-        name: 'Exchange 4',
-        description: 'Exchange 4 Description',
-        instructions: 'Instructions',
-        participantInstructionsOnComplete: ``,
-        cue: `Merci beaucoup pour vos réponses! Avez-vous quelque chose à ajouter?`,
-        order: 4,
-        messages: [],
-        assistant: artificialAssistant,
-        triggers: [],
-        started: false,
-        completed: false,
-        dismissed: false,
-        softLimit: 1,
-        hardLimit: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  function load(key: string): Interaction {
-    const item = window.sessionStorage.getItem(key);
-    return item != null ? JSON.parse(item) : defaultInteraction;
+  /**
+   * @function createInteractionFromTemplate
+   * @description Creates and returns a new `Interaction` object by merging default settings with chat and exchange settings.
+   * @returns {Interaction} A fully constructed `Interaction` object with merged settings.
+   */
+  function createInteractionFromTemplate(): Interaction {
+    // Merge chat settings with default interaction
+    const interactionBase: Interaction = {
+      ...defaultInteraction,
+      ...chat,
+      participant: currentMember,
+    };
+    interactionBase.exchanges.exchangeList = exchanges.exchangeList.map(
+      (exchange) => ({
+        // Merge default exchange with each exchange from settings
+        ...defaultExchange,
+        ...exchange,
+        assistant: {
+          ...defaultAssistant,
+          ...exchange.assistant,
+          type: AgentType.Assistant,
+        },
+      }),
+    );
+    return interactionBase;
   }
 
-  const [interaction, setInteraction] = useState<Interaction>(
-    load('interaction'),
+  // Memoize the current app data for the participant
+  const currentAppData = useMemo(
+    () =>
+      appDatas?.find(
+        (appData) =>
+          appData?.data?.exchanges && appData.member.id === participantId,
+      ),
+    [appDatas, participantId],
   );
 
-  useEffect(() => {
-    window.sessionStorage.setItem('interaction', JSON.stringify(interaction));
-  }, [interaction]);
+  // Ref to track if the app data has already been posted
+  const hasPosted = useRef(!!currentAppData);
 
+  // State to manage the current interaction, either from existing data or a new template
+  const [interaction, setInteraction] = useState<Interaction>(
+    (currentAppData?.data as Interaction) || createInteractionFromTemplate(),
+  );
+
+  // Effect to post the interaction data if it hasn't been posted yet
+  useEffect(() => {
+    if (!hasPosted.current) {
+      postAppData({ data: interaction, type: 'Interaction' });
+      hasPosted.current = true;
+    }
+  }, [interaction, postAppData]);
+
+  // Effect to patch the interaction data if it has been posted and current app data exists
+  useEffect(() => {
+    if (hasPosted.current && currentAppData?.id) {
+      patchAppData({
+        id: currentAppData.id,
+        data: interaction,
+      });
+    }
+  }, [interaction, patchAppData, currentAppData?.id]);
+
+  // Callback to update a specific exchange within the interaction
+  const updateExchange = useCallback((updatedExchange: Exchange): void => {
+    setInteraction((prevState) => ({
+      ...prevState,
+      exchanges: {
+        exchangeList: prevState.exchanges.exchangeList.map((exchange) =>
+          exchange.id === updatedExchange.id ? updatedExchange : exchange,
+        ),
+      },
+    }));
+  }, []);
+
+  // Effect to handle actions when the user tries to leave the page (before unload)
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent): string => {
       if (!interaction.completed) {
-        // Perform actions before the component unloads
+        // If the interaction is not completed, prompt the user before leaving
         event.preventDefault();
-
-        // Chrome requires returnValue to be set
-        // Prompt the user before leaving
         const confirmationMessage = 'Are you sure you want to leave?';
-
-        // Chrome requires returnValue to be set
         // eslint-disable-next-line no-param-reassign
         event.returnValue = confirmationMessage; // For Chrome
         return confirmationMessage; // For standard browsers
@@ -152,37 +143,48 @@ const ParticipantInteraction = (): ReactElement => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [interaction]);
+  }, [interaction.completed]);
 
-  function startInteraction(): void {
-    const updatedInteraction = { ...interaction };
-    updatedInteraction.started = true;
-    updatedInteraction.startedAt = new Date();
-    setInteraction(updatedInteraction);
-  }
-
-  const goToNextExchange = (): void => {
-    const updatedInteraction = { ...interaction };
-    const numExchanges = interaction.exchanges.length;
-    const { currentExchange } = interaction;
-    if (currentExchange === numExchanges - 1) {
-      updatedInteraction.completed = true;
-      updatedInteraction.completedAt = new Date();
-      setInteraction(updatedInteraction);
-    } else {
-      updatedInteraction.currentExchange = interaction.currentExchange + 1;
-      setInteraction(updatedInteraction);
-    }
+  // Function to start the interaction
+  const startInteraction = (): void => {
+    setInteraction((prev) => ({
+      ...prev,
+      started: true,
+      startedAt: new Date(),
+    }));
   };
 
+  // Function to move to the next exchange or complete the interaction
+  const goToNextExchange = (): void => {
+    setInteraction((prev) => {
+      const numExchanges = prev.exchanges.exchangeList.length;
+      if (prev.currentExchange === numExchanges - 1) {
+        // If this is the last exchange, mark the interaction as completed
+        return {
+          ...prev,
+          completed: true,
+          completedAt: new Date(),
+        };
+      }
+      return {
+        ...prev,
+        // Move to the next exchange
+        currentExchange: prev.currentExchange + 1,
+      };
+    });
+  };
+
+  // Render fallback if interaction data is not available
   if (!interaction) {
     return <div>Interaction Not Found</div>;
   }
 
+  // Handle the start of the interaction
   const handleStartInteraction = (): void => {
     startInteraction();
   };
 
+  // Render the start interaction button if the interaction has not started
   if (!interaction.started) {
     return (
       <Box
@@ -193,21 +195,9 @@ const ParticipantInteraction = (): ReactElement => {
         }}
       >
         {interaction.participantInstructions && (
-          <>
-            <Typography
-              variant="body1"
-              sx={{ p: 2, pt: 4, textAlign: 'justify' }}
-            >
-              {interaction.participantInstructions}
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ p: 2, pt: 4, textAlign: 'center' }}
-            >
-              Le dialogue dure environ 5 minutes et vous recevrez une petite
-              récompense pour vous remercier de votre participation!
-            </Typography>
-          </>
+          <Typography variant="body1" sx={{ p: 2, pt: 4, textAlign: 'center' }}>
+            {interaction.participantInstructions}
+          </Typography>
         )}
         <Button
           variant="contained"
@@ -216,12 +206,12 @@ const ParticipantInteraction = (): ReactElement => {
           sx={{ mt: 3, mx: 'auto' }}
           onClick={handleStartInteraction}
         >
-          Commencer!
+          {t('START')}
         </Button>
       </Box>
     );
   }
-
+  // Render the completed interaction message if the interaction is completed
   return interaction.completed ? (
     <Box
       sx={{
@@ -231,51 +221,32 @@ const ParticipantInteraction = (): ReactElement => {
       }}
     >
       <Typography variant="body1" sx={{ p: 10, textAlign: 'center' }}>
-        {interaction.participantInstructionsOnComplete}
-        <br />
-        <br />
-        Cadeau! Écoutez ces concerts de Luca Forcucci en streaming!
-        <br />
-        <br />
-        <a
-          href="https://vimeo.com/manage/videos/659021910"
-          target="_blank"
-          rel="noreferrer"
-        >
-          https://vimeo.com/manage/videos/659021910
-        </a>
-        <br />
-        <a href="https://tinyurl.com/2w7bj2xs" target="_blank" rel="noreferrer">
-          https://tinyurl.com/2w7bj2xs
-        </a>
-        <br />
-        <a href="https://tinyurl.com/526xxa8w" target="_blank" rel="noreferrer">
-          https://tinyurl.com/526xxa8w
-        </a>
-        <br />
-        <br />
-        <a
-          href="https://linktr.ee/lucaforcucci"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Plus d’information sur l’artiste.
-        </a>
-        <br />
-        <a href="https://lnco.epfl.ch" target="_blank" rel="noreferrer">
-          Plus d’information sur les chercheurs.
-        </a>
+        {interaction.participantEndText}
       </Typography>
     </Box>
   ) : (
+    // Render the MessagesPane component to handle the conversation
     <MessagesPane
       goToNextExchange={goToNextExchange}
-      autoDismiss
-      exchange={interaction.exchanges[interaction.currentExchange]}
-      participantId={participantId}
-      readOnly={false}
+      autoDismiss={
+        interaction.exchanges.exchangeList[interaction.currentExchange]
+          .hardLimit
+      } // Auto-dismiss exchanges if the hard limit is reached
+      currentExchange={
+        interaction.exchanges.exchangeList[interaction.currentExchange]
+      }
+      setExchange={updateExchange}
+      interactionDescription={interaction.description}
+      pastMessages={interaction.exchanges.exchangeList.flatMap((exchange) => {
+        if (exchange.dismissed) {
+          return exchange.messages;
+        }
+        return [];
+      })}
+      participant={currentMember}
     />
   );
 };
 
+// Export the ParticipantInteraction component as the default export
 export default ParticipantInteraction;

@@ -40,3 +40,6 @@ yarn-debug.log*
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
+
+#vite
+vite.config.ts.timestamp-*

@@ -1,6 +1,5 @@
 {
   "translations": {
-    "Welcome to the Graasp App Starter Kit": "Welcome to the Graasp App Starter Kit",
     "ERROR_BOUNDARY": {
       "FALLBACK": {
         "MESSAGE_TITLE": "Sorry, something went wrong with this application",
@@ -15,6 +14,58 @@
         "THANKS_FOR_FEEDBACK": "Thank you for your feedback!",
         "SEND": "Send your feedback"
       }
+    },
+    "SETTINGS": {
+      "TITLE": "App Settings",
+      "SAVE_BTN": "Save",
+      "UP": "Move up",
+      "DOWN": "Move down",
+      "ASSISTANTS": {
+        "TITLE": "Assistants Settings",
+        "ID": "Assistant ID",
+        "NAME": "Assistant Name",
+        "DESCRIPTION": "Assistant Description",
+        "IMAGE": "Assistant Image",
+        "URL": "Please enter a working link to your desired image.",
+        "ADD": "Create New Assistant",
+        "CREATE": "Please create at least one assistant."
+      },
+      "CHAT": {
+        "TITLE": "Chat Settings",
+        "DESCRIPTION": "Chat Description",
+        "INSTRUCTIONS": "Participant Instructions",
+        "END": "End Screen Text",
+        "USER": "Participant"
+      },
+      "EXCHANGES": {
+        "TITLE": "Exchanges Settings",
+        "DESCRIPTION": "Exchanges Description",
+        "INSTRUCTIONS": "Chatbot instructions",
+        "CUE": "Initial Cue",
+        "ASSISTANT": "Assistant",
+        "CREATE_ASSISTANT": "Please create at least one assistant.",
+        "FOLLOW_UP_QUESTIONS": "Number of Follow Up Questions",
+        "ON_COMPLETE": "Instruction on Exchange Completion",
+        "ON_COMPLETE_HELPER": "This text will be shown once the given number of follow up questions have been answered. Leave blank for no message.",
+        "DISABLE_HARD_LIMIT": "Auto Dismiss",
+        "HARD_LIMIT_INFO": "If checked, the next exchange will start automatically after the number of follow up questions is reached.",
+        "CREATE": "Please create at least one exchange."
+      }
+    },
+    "CONVERSATIONS": {
+      "TITLE": "View Conversations",
+      "MEMBER": "Please select a member",
+      "PLACEHOLDER": "Please select a member",
+      "NONE": "No conversations so far.",
+      "COMPLETE": "Completed",
+      "INCOMPLETE": "Not completed",
+      "RESET": "Delete and reset conversation"
+    },
+    "START": "Start",
+    "MESSAGE_BOX": {
+      "INSERT_HERE": "Your response here...",
+      "SEND": "Send",
+      "DONE": "Done"
     }
   }
 }

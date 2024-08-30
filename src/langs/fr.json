@@ -1,5 +1,71 @@
 {
   "translations": {
-    "Welcome to the Graasp App Starter Kit": "Bienvenue dans le kit de démarrage de l'application Graasp"
+    "ERROR_BOUNDARY": {
+      "FALLBACK": {
+        "MESSAGE_TITLE": "Désolé, quelque chose n'a pas fonctionné avec cette application",
+        "MESSAGE_FEEDBACK": "Notre équipe a été informée. Si vous souhaitez nous aider, veuillez nous expliquer ce qui s'est passé ci-dessous",
+        "ERROR_DETAILS": "Détails de l'erreur",
+        "NAME_LABEL": "Name",
+        "NAME_HELPER": "Fournissez votre nom (facultatif)",
+        "EMAIL_LABEL": "Email",
+        "EMAIL_HELPER": "Fournissez votre courriel (facultatif)",
+        "COMMENT_LABEL": "Commentaire",
+        "COMMENT_HELPER": "Racontez-nous ce qui s'est passé (facultatif)",
+        "THANKS_FOR_FEEDBACK": "Thank you for your feedback !",
+        "SEND": "Envoyez votre retour d'information"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "Paramètres de l'application",
+      "SAVE_BTN": "Enregistrer",
+      "UP": "Déplacer vers le haut",
+      "DOWN": "Déplacer vers le bas",
+      "ASSISTANTS": {
+        "TITLE": "Paramètres de l'Assistant",
+        "ID": "Assistant ID",
+        "NAME": "Nom de l'Assistant",
+        "DESCRIPTION": "Description de l'Assistant",
+        "IMAGE": "Image de l'Assistant",
+        "URL": "Veuillez saisir un lien fonctionnel vers l'image souhaitée.",
+        "ADD": "Créer un Nouvel Assistant",
+        "CREATE": "Veuillez créer au moins un assistant."
+      },
+      "CHAT": {
+        "TITLE": " Paramètres du Chat",
+        "DESCRIPTION": "Description du Chat",
+        "INSTRUCTIONS": "Instructions pour le Participant",
+        "END": "Texte de Fin d'Écran",
+        "USER": "Participant"
+      },
+      "EXCHANGES": {
+        "TITLE": "Échanges Paramètres",
+        "DESCRIPTION": "Description des Échanges",
+        "INSTRUCTIONS": "Instructions du Chatbot",
+        "CUE": "Initial Cue",
+        "ASSISTANT": "Assistant",
+        "CREATE_ASSISTANT": "Veuillez créer au moins un assistant.",
+        "FOLLOW_UP_QUESTIONS": "Nombre de Questions de Suivi",
+        "ON_COMPLETE": "Instruction sur l'achèvement de l'échange",
+        "ON_COMPLETE_HELPER": "Ce texte s'affichera une fois que le nombre donné de questions de suivi aura été répondu. Laisser en blanc si aucun message n'est affiché.",
+        "DISABLE_HARD_LIMIT": "Rejet Automatique",
+        "HARD_LIMIT_INFO": "Si cette case est cochée, l'échange suivant commencera automatiquement une fois que le nombre de questions de suivi sera atteint",
+        "CREATE": "Veuillez créer au moins un échange."
+      }
+    },
+    "CONVERSATIONS": {
+      "TITLE": "Voir les Conversations",
+      "MEMBER": "Veuillez sélectionner un membre",
+      "PLACEHOLDER": "Veuillez sélectionner un membre",
+      "NONE": "Aucune conversation jusqu'à présent.",
+      "COMPLETE": "Terminé",
+      "INCOMPLETE": "Pas terminé",
+      "RESET": "Supprimer et réinitialiser la conversation"
+    },
+    "START": "Démarrer",
+    "MESSAGE_BOX": {
+      "INSERT_HERE": "Votre réponse ici...",
+      "SEND": "Envoyer",
+      "DONE": "Fini"
+    }
   }
 }
