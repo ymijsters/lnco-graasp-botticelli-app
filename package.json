@@ -22,7 +22,7 @@
     "@types/react": "18.2.79",
     "@types/react-dom": "18.2.25",
     "date-fns": "3.6.0",
-    "i18next": "23.9.0",
+    "i18next": "23.14.0",
     "lodash": "4.17.21",
     "react": "18.2.0",
     "react-content-loader": "7.0.2",
