@@ -56,18 +56,18 @@
   "devDependencies": {
     "@commitlint/cli": "19.2.2",
     "@commitlint/config-conventional": "19.1.0",
-    "@cypress/code-coverage": "3.12.34",
+    "@cypress/code-coverage": "3.12.46",
     "@eslint/compat": "1.1.1",
     "@eslint/eslintrc": "3.1.0",
     "@eslint/js": "9.9.0",
     "@trivago/prettier-plugin-sort-imports": "4.3.0",
-    "@types/i18n": "0.13.10",
+    "@types/i18n": "0.13.12",
     "@types/lodash": "^4",
     "@types/uuid": "9.0.8",
     "@typescript-eslint/eslint-plugin": "7.6.0",
     "@typescript-eslint/parser": "7.6.0",
     "@vitejs/plugin-react": "4.2.1",
-    "axios": "1.7.4",
+    "axios": "1.7.6",
     "concurrently": "8.2.2",
     "cypress": "13.7.3",
     "env-cmd": "10.1.0",
@@ -86,13 +86,13 @@
     "globals": "15.9.0",
     "husky": "9.0.11",
     "miragejs": "0.1.48",
-    "nock": "13.5.4",
+    "nock": "13.5.5",
     "nyc": "15.1.0",
     "prettier": "3.2.5",
     "uuid": "9.0.1",
-    "vite": "5.2.8",
+    "vite": "5.2.13",
     "vite-plugin-checker": "0.6.4",
-    "vite-plugin-istanbul": "6.0.0"
+    "vite-plugin-istanbul": "6.0.2"
   },
   "browserslist": {
     "production": [

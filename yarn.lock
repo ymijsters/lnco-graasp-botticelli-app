@@ -1929,14 +1929,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/code-coverage@npm:3.12.34":
-  version: 3.12.34
-  resolution: "@cypress/code-coverage@npm:3.12.34"
+"@cypress/code-coverage@npm:3.12.46":
+  version: 3.12.46
+  resolution: "@cypress/code-coverage@npm:3.12.46"
   dependencies:
     "@cypress/webpack-preprocessor": "npm:^6.0.0"
     chalk: "npm:4.1.2"
-    dayjs: "npm:1.11.10"
-    debug: "npm:4.3.4"
+    dayjs: "npm:1.11.12"
+    debug: "npm:4.3.6"
     execa: "npm:4.1.0"
     globby: "npm:11.1.0"
     istanbul-lib-coverage: "npm:^3.0.0"
@@ -1948,7 +1948,7 @@ __metadata:
     babel-loader: ^8.3 || ^9
     cypress: "*"
     webpack: ^4 || ^5
-  checksum: 10/43360bc58353e4df3b465dacfdc6e44e741c21c74466fb363ac880c29342345fa33739e85adfc59b21c14cc2933873884408d39f1433a9f9a736430cdb322c72
+  checksum: 10/ee50ccfb56c43cec269a6182ccff640c73957d8adbbdfae8d05b52da2444aa884dc7f679b9e66047838d0f2d339aa9d353b82a05b259cecc9db05973900b9f18
   languageName: node
   linkType: hard
 
@@ -4107,10 +4107,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/i18n@npm:0.13.10":
-  version: 0.13.10
-  resolution: "@types/i18n@npm:0.13.10"
-  checksum: 10/4b6c84536bf891d07fb1b1daf2e8d66889d0c317dc3c2b653d65a922ee3df3cef93b811b71e46dfb6483a95beb1515a7c82bf3f0fb05d54084ac519ff93f706d
+"@types/i18n@npm:0.13.12":
+  version: 0.13.12
+  resolution: "@types/i18n@npm:0.13.12"
+  checksum: 10/37fafabce4973ac0be008c5401bd159397dbaa2dab720323d1624a0580c1dce3416186981417c7d6558b90dd44947ccdb2ec4da663894ffba57a6239a5d4f4d2
   languageName: node
   linkType: hard
 
@@ -5233,14 +5233,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.7.4":
-  version: 1.7.4
-  resolution: "axios@npm:1.7.4"
+"axios@npm:1.7.6":
+  version: 1.7.6
+  resolution: "axios@npm:1.7.6"
   dependencies:
     follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10/7a1429be1e3d0c2e1b96d4bba4d113efbfabc7c724bed107beb535c782c7bea447ff634886b0c7c43395a264d085450d009eb1154b5f38a8bae49d469fdcbc61
+  checksum: 10/c9a488da1e5bae690b4832d270bf0bc99c4246407f65783446c94216a6d63d228bccbacff4bde1891d6612c4a89369356101a1cbbd66efeac1776950750a561b
   languageName: node
   linkType: hard
 
@@ -6209,14 +6209,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.11.10":
-  version: 1.11.10
-  resolution: "dayjs@npm:1.11.10"
-  checksum: 10/27e8f5bc01c0a76f36c656e62ab7f08c2e7b040b09e613cd4844abf03fb258e0350f0a83b02c887b84d771c1f11e092deda0beef8c6df2a1afbc3f6c1fade279
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:^1.10.4":
+"dayjs@npm:1.11.12, dayjs@npm:^1.10.4":
   version: 1.11.12
   resolution: "dayjs@npm:1.11.12"
   checksum: 10/8ee7c1e14961fd08d40b788d0c0e930dc6288b3d32911bb911b2fb31bb703c262788164fbe678ee9e50e2a35268d667b8c8ba43fd1806771c1f404c300a2b428
@@ -6232,7 +6225,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:4.3.6, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.6
   resolution: "debug@npm:4.3.6"
   dependencies:
@@ -6241,18 +6234,6 @@ __metadata:
     supports-color:
       optional: true
   checksum: 10/d3adb9af7d57a9e809a68f404490cf776122acca16e6359a2702c0f462e510e91f9765c07f707b8ab0d91e03bad57328f3256f5082631cefb5393d0394d50fb7
-  languageName: node
-  linkType: hard
-
-"debug@npm:4.3.4":
-  version: 4.3.4
-  resolution: "debug@npm:4.3.4"
-  dependencies:
-    ms: "npm:2.1.2"
-  peerDependenciesMeta:
-    supports-color:
-      optional: true
-  checksum: 10/0073c3bcbd9cb7d71dd5f6b55be8701af42df3e56e911186dfa46fac3a5b9eb7ce7f377dd1d3be6db8977221f8eb333d945216f645cf56f6b688cd484837d255
   languageName: node
   linkType: hard
 
@@ -8394,7 +8375,7 @@ __metadata:
   dependencies:
     "@commitlint/cli": "npm:19.2.2"
     "@commitlint/config-conventional": "npm:19.1.0"
-    "@cypress/code-coverage": "npm:3.12.34"
+    "@cypress/code-coverage": "npm:3.12.46"
     "@emotion/react": "npm:11.11.4"
     "@emotion/styled": "npm:11.11.5"
     "@eslint/compat": "npm:1.1.1"
@@ -8410,7 +8391,7 @@ __metadata:
     "@tanstack/react-query": "npm:4.36.1"
     "@tanstack/react-query-devtools": "npm:4.36.1"
     "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
-    "@types/i18n": "npm:0.13.10"
+    "@types/i18n": "npm:0.13.12"
     "@types/lodash": "npm:^4"
     "@types/node": "npm:20.11.30"
     "@types/react": "npm:18.2.77"
@@ -8419,7 +8400,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:7.6.0"
     "@typescript-eslint/parser": "npm:7.6.0"
     "@vitejs/plugin-react": "npm:4.2.1"
-    axios: "npm:1.7.4"
+    axios: "npm:1.7.6"
     concurrently: "npm:8.2.2"
     cypress: "npm:13.7.3"
     date-fns: "npm:3.6.0"
@@ -8441,7 +8422,7 @@ __metadata:
     i18next: "npm:23.9.0"
     lodash: "npm:4.17.21"
     miragejs: "npm:0.1.48"
-    nock: "npm:13.5.4"
+    nock: "npm:13.5.5"
     nyc: "npm:15.1.0"
     prettier: "npm:3.2.5"
     react: "npm:18.2.0"
@@ -8451,9 +8432,9 @@ __metadata:
     react-toastify: "npm:10.0.5"
     typescript: "npm:5.4.5"
     uuid: "npm:9.0.1"
-    vite: "npm:5.2.8"
+    vite: "npm:5.2.13"
     vite-plugin-checker: "npm:0.6.4"
-    vite-plugin-istanbul: "npm:6.0.0"
+    vite-plugin-istanbul: "npm:6.0.2"
   languageName: unknown
   linkType: soft
 
@@ -10288,14 +10269,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nock@npm:13.5.4":
-  version: 13.5.4
-  resolution: "nock@npm:13.5.4"
+"nock@npm:13.5.5":
+  version: 13.5.5
+  resolution: "nock@npm:13.5.5"
   dependencies:
     debug: "npm:^4.1.0"
     json-stringify-safe: "npm:^5.0.1"
     propagate: "npm:^2.0.0"
-  checksum: 10/75bad391bae4efb81b742734af5f2d87309cd93d3ca6b78372fd37946d78ccb254d79104676619866915e6734abfc1b00fee2aa42073a4843ca3c746aad35a4d
+  checksum: 10/c19d7bf9654db056357a22b00127bb5606c1bbdff188a5b6c469825e580e31cd0cb0701bce8dd8b4876dbbd36a145fdb681fd69fd59308d6db4923ce8ab2439e
   languageName: node
   linkType: hard
 
@@ -13127,9 +13108,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-istanbul@npm:6.0.0":
-  version: 6.0.0
-  resolution: "vite-plugin-istanbul@npm:6.0.0"
+"vite-plugin-istanbul@npm:6.0.2":
+  version: 6.0.2
+  resolution: "vite-plugin-istanbul@npm:6.0.2"
   dependencies:
     "@istanbuljs/load-nyc-config": "npm:^1.1.0"
     espree: "npm:^10.0.1"
@@ -13139,13 +13120,13 @@ __metadata:
     test-exclude: "npm:^6.0.0"
   peerDependencies:
     vite: ">=4 <=6"
-  checksum: 10/9a989707b7d6faed1d3d6e58f246f4632d229d0d5524b1886a0338f7ec082b37a172a648132bced5a3e439639a0052dfe5117123944ac7c352df73298687c34a
+  checksum: 10/fddd8367fa02159a047179c9c576c309f9a14bb970116e35fe543d40e3acc615c1671387b9de2394a5bc75d2ab0cfb7b7ebb9e29ec4ddff5411fa7bfee663e42
   languageName: node
   linkType: hard
 
-"vite@npm:5.2.8":
-  version: 5.2.8
-  resolution: "vite@npm:5.2.8"
+"vite@npm:5.2.13":
+  version: 5.2.13
+  resolution: "vite@npm:5.2.13"
   dependencies:
     esbuild: "npm:^0.20.1"
     fsevents: "npm:~2.3.3"
@@ -13179,7 +13160,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10/caa40343c2c4e6d8e257fccb4c3029f62909c319a86063ce727ed550925c0a834460b0d1ca20c4d6c915f35302aa1052f6ec5193099a47ce21d74b9b817e69e1
+  checksum: 10/eee65eebff8c839935fdf1a6f2bbc90b923d53a447cc0949abea71577166e7ad7ceb41f3ea42c79a54997319eacfa45445509da371a8ba0699fce8f7de137882
   languageName: node
   linkType: hard
 
