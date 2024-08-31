@@ -8444,7 +8444,7 @@ __metadata:
     nyc: "npm:15.1.0"
     prettier: "npm:3.2.5"
     react: "npm:18.2.0"
-    react-content-loader: "npm:7.0.0"
+    react-content-loader: "npm:7.0.2"
     react-dom: "npm:18.2.0"
     react-i18next: "npm:14.1.0"
     react-toastify: "npm:10.0.5"
@@ -11180,12 +11180,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-content-loader@npm:7.0.0":
-  version: 7.0.0
-  resolution: "react-content-loader@npm:7.0.0"
+"react-content-loader@npm:7.0.2":
+  version: 7.0.2
+  resolution: "react-content-loader@npm:7.0.2"
   peerDependencies:
     react: ">=16.0.0"
-  checksum: 10/1f1e5e0e39c3ff627964998b10c590b5252de11f838a74e8338dc1af191f540b4831d91657bccdb3df3b807ec39eee11691dc7870535427c9afd5ec5c73cfcd1
+  checksum: 10/8f7d7b84a50cfc6a7595fb858ccf9b801a80ccf764a07af0434da6ba9b06d8f64e21d77821ba6699f6cb9edde1fa670fd00ebd023f12c8dd245f8833aa12e245
   languageName: node
   linkType: hard
 
