@@ -1737,30 +1737,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/cli@npm:19.2.2":
-  version: 19.2.2
-  resolution: "@commitlint/cli@npm:19.2.2"
+"@commitlint/cli@npm:19.4.1":
+  version: 19.4.1
+  resolution: "@commitlint/cli@npm:19.4.1"
   dependencies:
-    "@commitlint/format": "npm:^19.0.3"
-    "@commitlint/lint": "npm:^19.2.2"
-    "@commitlint/load": "npm:^19.2.0"
-    "@commitlint/read": "npm:^19.2.1"
+    "@commitlint/format": "npm:^19.3.0"
+    "@commitlint/lint": "npm:^19.4.1"
+    "@commitlint/load": "npm:^19.4.0"
+    "@commitlint/read": "npm:^19.4.0"
     "@commitlint/types": "npm:^19.0.3"
     execa: "npm:^8.0.1"
     yargs: "npm:^17.0.0"
   bin:
     commitlint: cli.js
-  checksum: 10/bff139177aecffe809ec8665a7ffd3f9acae144ec8634b6ed93802ae9a3333bc978f69ba26dacd2bbc0e06e3dada8ca49fe49bd5316c916e626f8df8dcc03dc9
+  checksum: 10/9199d3c6587476ba94dca4f55928d4461a6f380a96861e20a11d363ff9744b8f9a5955407510020402c15b226c5505e4050a9a21dd7d096f9bfc30bb3571edf7
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:19.1.0":
-  version: 19.1.0
-  resolution: "@commitlint/config-conventional@npm:19.1.0"
+"@commitlint/config-conventional@npm:19.4.1":
+  version: 19.4.1
+  resolution: "@commitlint/config-conventional@npm:19.4.1"
   dependencies:
     "@commitlint/types": "npm:^19.0.3"
     conventional-changelog-conventionalcommits: "npm:^7.0.2"
-  checksum: 10/e3a6ccb521d8849600b7db1d777eed4861ab85c83f26bba56057f05a3cd3481bcce2bbfa29cada03929d3560c4b5509c3d0089ee1d3f530fdbc658e8e6311f26
+  checksum: 10/a1bcee880f3c167e605758710e75665485f62904702a40db326cc285dcb68b512e346cbe58533b91e115e2ac2e732d72249cba3e49350c1763b95d78e62a8181
   languageName: node
   linkType: hard
 
@@ -1795,7 +1795,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/format@npm:^19.0.3":
+"@commitlint/format@npm:^19.3.0":
   version: 19.3.0
   resolution: "@commitlint/format@npm:19.3.0"
   dependencies:
@@ -1815,7 +1815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/lint@npm:^19.2.2":
+"@commitlint/lint@npm:^19.4.1":
   version: 19.4.1
   resolution: "@commitlint/lint@npm:19.4.1"
   dependencies:
@@ -1827,7 +1827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/load@npm:^19.2.0":
+"@commitlint/load@npm:^19.4.0":
   version: 19.4.0
   resolution: "@commitlint/load@npm:19.4.0"
   dependencies:
@@ -1863,7 +1863,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/read@npm:^19.2.1":
+"@commitlint/read@npm:^19.4.0":
   version: 19.4.0
   resolution: "@commitlint/read@npm:19.4.0"
   dependencies:
@@ -8407,8 +8407,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "graasp-app-botticelli@workspace:."
   dependencies:
-    "@commitlint/cli": "npm:19.2.2"
-    "@commitlint/config-conventional": "npm:19.1.0"
+    "@commitlint/cli": "npm:19.4.1"
+    "@commitlint/config-conventional": "npm:19.4.1"
     "@cypress/code-coverage": "npm:3.12.46"
     "@emotion/react": "npm:11.11.4"
     "@emotion/styled": "npm:11.11.5"
