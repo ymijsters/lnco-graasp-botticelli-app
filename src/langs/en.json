@@ -32,6 +32,7 @@
       },
       "CHAT": {
         "TITLE": "Chat Settings",
+        "NAME": "Interaction Name",
         "DESCRIPTION": "Chat Description",
         "INSTRUCTIONS": "Participant Instructions",
         "END": "End Screen Text",
@@ -40,6 +41,7 @@
       },
       "EXCHANGES": {
         "TITLE": "Exchanges Settings",
+        "NAME": "Exchange Name",
         "DESCRIPTION": "Exchanges Description",
         "INSTRUCTIONS": "Chatbot instructions",
         "CUE": "Initial Cue",

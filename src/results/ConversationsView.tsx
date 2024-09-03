@@ -72,8 +72,10 @@ const Conversations: FC<Props> = ({
   };
 
   // Utility function to convert JSON data to CSV format
-  const convertJsonToCsv = (data: Interaction[]): string => {
-    const headers = [
+  const convertJsonToCsv: (data: Interaction[]) => string = (
+    data: Interaction[],
+  ): string => {
+    const headers: string[] = [
       'Participant',
       'Sender',
       'Sent at',
@@ -82,21 +84,22 @@ const Conversations: FC<Props> = ({
       'Content',
       'Type',
     ];
-    const csvRows = [
+    const csvRows: string[] = [
       headers.join(','), // header row first
-      ...data.flatMap((interactionData: Interaction) =>
-        interactionData.exchanges.exchangeList.flatMap((exchange: Exchange) =>
-          exchange.messages.map((message: Message) =>
-            [
-              interactionData.participant.name,
-              message.sender.name,
-              format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
-              exchange.description,
-              interactionData.description,
-              message.content,
-              typeof message.content,
-            ].join(','),
-          ),
+      ...data.flatMap((interactionData: Interaction): string[] =>
+        interactionData.exchanges.exchangeList.flatMap(
+          (exchange: Exchange): string[] =>
+            exchange.messages.map((message: Message): string =>
+              [
+                interactionData.participant.name,
+                message.sender.name,
+                format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
+                exchange.name,
+                interactionData.name,
+                message.content,
+                typeof message.content,
+              ].join(','),
+            ),
         ),
       ),
     ];
@@ -108,22 +111,28 @@ const Conversations: FC<Props> = ({
     headers.map((header) => JSON.stringify(row[header] || '')).join(','),
 */
   // Function to download CSV file
-  const downloadCsv = (csv: string, filename: string): void => {
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', filename);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const downloadCsv: (csv: string, filename: string) => void = (
+    csv: string,
+    filename: string,
+  ): void => {
+    const blob: Blob = new Blob([csv], { type: 'text/csv' });
+    const url: string = window.URL.createObjectURL(blob);
+    const anchor: HTMLAnchorElement = document.createElement('a');
+    anchor.setAttribute('hidden', '');
+    anchor.setAttribute('href', url);
+    anchor.setAttribute('download', filename);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
   };
 
   // Main function to handle JSON export as CSV
-  const exportJsonAsCsv = (jsonData: Interaction[], filename: string): void => {
+  const exportJsonAsCsv: (jsonData: Interaction[], filename: string) => void = (
+    jsonData: Interaction[],
+    filename: string,
+  ): void => {
     if (jsonData && jsonData.length) {
-      const csv = convertJsonToCsv(jsonData);
+      const csv: string = convertJsonToCsv(jsonData);
       downloadCsv(csv, filename);
     }
   };
@@ -134,9 +143,9 @@ const Conversations: FC<Props> = ({
         <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
         <Button
           disabled={appDatas?.length === 0}
-          onClick={() =>
+          onClick={(): void =>
             exportJsonAsCsv(
-              appDatas.flatMap((appData) => appData.data),
+              appDatas.map((appData): Interaction => appData.data),
               `chatbot_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
             )
           }
@@ -228,7 +237,7 @@ const Conversations: FC<Props> = ({
                       </TableCell>
                       <TableCell>
                         <IconButton
-                          onClick={() => {
+                          onClick={(): void => {
                             exportJsonAsCsv(
                               interaction ? [interaction.data] : [],
                               `chatbot_${interaction?.data.description}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,

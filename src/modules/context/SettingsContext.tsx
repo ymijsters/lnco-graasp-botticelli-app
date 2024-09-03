@@ -24,6 +24,7 @@ export const defaultSettingsValues: AllSettingsType = {
     assistantList: [{ id: uuidv4(), name: '', description: '' }],
   },
   chat: {
+    name: '',
     description: '',
     participantInstructions: '',
     participantEndText: '',
@@ -33,6 +34,7 @@ export const defaultSettingsValues: AllSettingsType = {
     exchangeList: [
       {
         id: uuidv4(),
+        name: '',
         assistant: {
           id: '',
           name: '',

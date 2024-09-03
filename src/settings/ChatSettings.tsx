@@ -22,6 +22,7 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
 
   // Destructuring chat settings
   const {
+    name: chatName,
     description: chatDescription,
     participantInstructions: chatInstructions,
     participantEndText: chatEndText,
@@ -31,6 +32,14 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
   return (
     <Stack spacing={2}>
       <Typography variant="h5">{t('SETTINGS.CHAT.TITLE')}</Typography>
+      <TextField
+        value={chatName}
+        label={t('SETTINGS.CHAT.NAME')}
+        inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
+        onChange={(
+          e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        ): void => onChange({ ...chat, name: e.target.value })}
+      />
       <TextField
         value={chatDescription}
         label={t('SETTINGS.CHAT.DESCRIPTION')}

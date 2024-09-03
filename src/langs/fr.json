@@ -32,6 +32,7 @@
       },
       "CHAT": {
         "TITLE": " Paramètres du Chat",
+        "NAME": "Nom de l'Interaction",
         "DESCRIPTION": "Description du Chat",
         "INSTRUCTIONS": "Instructions pour le Participant",
         "END": "Texte de Fin d'Écran",
@@ -40,6 +41,7 @@
       },
       "EXCHANGES": {
         "TITLE": "Échanges Paramètres",
+        "NAME": "Nom de l'Échange",
         "DESCRIPTION": "Description des Échanges",
         "INSTRUCTIONS": "Instructions du Chatbot",
         "CUE": "Initial Cue",
