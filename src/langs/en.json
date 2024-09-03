@@ -55,6 +55,7 @@
     },
     "CONVERSATIONS": {
       "TITLE": "View Conversations",
+      "EXPORT_ALL": "Export All",
       "TABLE": {
         "MEMBER": "Member",
         "UPDATED": "Last change",
@@ -62,7 +63,8 @@
         "NOT_STARTED": "Not started",
         "COMPLETE": "Completed",
         "INCOMPLETE": "Not completed",
-        "DELETE": "Delete interaction",
+        "DELETE": "Delete",
+        "EXPORT": "Export",
         "NONE": "No conversations so far."
       },
       "RESET": "Delete and reset conversation"

@@ -105,6 +105,7 @@ const MessagesPane = ({
           id: uuidv4(),
           content: currentExchange.participantCue,
           sender: currentExchange.assistant,
+          sentAt: new Date(),
         },
       ]);
     }
@@ -161,6 +162,7 @@ const MessagesPane = ({
           id: uuidv4(),
           content: chatBotRes.completion,
           sender: currentExchange.assistant,
+          sentAt: new Date(),
         };
 
         // Add the chatbot's response to the list of messages
@@ -181,6 +183,7 @@ const MessagesPane = ({
       id: uuidv4(),
       content,
       sender: participant,
+      sentAt: new Date(),
     };
 
     // Update the messages state with the new message

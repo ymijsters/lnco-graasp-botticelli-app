@@ -2,11 +2,13 @@ import { FC, Fragment } from 'react';
 import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Alert,
   Box,
+  Button,
   Collapse,
   IconButton,
   Paper,
@@ -48,7 +50,10 @@ const Conversations: FC<Props> = ({
   const { mutate: deleteAppData } = mutations.useDeleteAppData();
 
   // Fetching interaction data
-  const { data: appDatas } = hooks.useAppData<Interaction>();
+  const appDatas =
+    hooks
+      .useAppData<Interaction>()
+      .data?.filter((appData) => appData.type === 'Interaction') || [];
 
   // Fetching all members from the app context or defaulting to the checked-out member
   const allMembers: Member[] = hooks.useAppContext().data?.members || [];
@@ -66,9 +71,79 @@ const Conversations: FC<Props> = ({
     return t('CONVERSATIONS.TABLE.NOT_STARTED');
   };
 
+  // Utility function to convert JSON data to CSV format
+  const convertJsonToCsv = (data: Interaction[]): string => {
+    const headers = [
+      'Participant',
+      'Sender',
+      'Sent at',
+      'Exchange',
+      'Interaction',
+      'Content',
+      'Type',
+    ];
+    const csvRows = [
+      headers.join(','), // header row first
+      ...data.flatMap((interactionData: Interaction) =>
+        interactionData.exchanges.exchangeList.flatMap((exchange: Exchange) =>
+          exchange.messages.map((message: Message) =>
+            [
+              interactionData.participant.name,
+              message.sender.name,
+              format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
+              exchange.description,
+              interactionData.description,
+              message.content,
+              typeof message.content,
+            ].join(','),
+          ),
+        ),
+      ),
+    ];
+    // map data rows
+    return csvRows.join('\n');
+  };
+  /*
+  ...data.map((row) =>
+    headers.map((header) => JSON.stringify(row[header] || '')).join(','),
+*/
+  // Function to download CSV file
+  const downloadCsv = (csv: string, filename: string): void => {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  // Main function to handle JSON export as CSV
+  const exportJsonAsCsv = (jsonData: Interaction[], filename: string): void => {
+    if (jsonData && jsonData.length) {
+      const csv = convertJsonToCsv(jsonData);
+      downloadCsv(csv, filename);
+    }
+  };
+
   return (
     <Stack spacing={2}>
-      <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
+        <Button
+          disabled={appDatas?.length === 0}
+          onClick={() =>
+            exportJsonAsCsv(
+              appDatas.flatMap((appData) => appData.data),
+              `chatbot_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+            )
+          }
+        >
+          {t('CONVERSATIONS.EXPORT_ALL')}
+        </Button>
+      </Stack>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
@@ -78,6 +153,7 @@ const Conversations: FC<Props> = ({
               <TableCell>{t('CONVERSATIONS.TABLE.UPDATED')}</TableCell>
               <TableCell>{t('CONVERSATIONS.TABLE.STATUS')}</TableCell>
               <TableCell>{t('CONVERSATIONS.TABLE.DELETE')}</TableCell>
+              <TableCell>{t('CONVERSATIONS.TABLE.EXPORT')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -142,11 +218,25 @@ const Conversations: FC<Props> = ({
                               id: interaction?.id || '',
                             })
                           }
+                          disabled={!interaction}
                           sx={{ width: 'auto' }}
                         >
                           <Tooltip title={t('CONVERSATIONS.RESET')}>
                             <DeleteIcon />
                           </Tooltip>
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() => {
+                            exportJsonAsCsv(
+                              interaction ? [interaction.data] : [],
+                              `chatbot_${interaction?.data.description}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+                            );
+                          }}
+                          disabled={!interaction?.data}
+                        >
+                          <FileDownloadIcon />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -161,7 +251,7 @@ const Conversations: FC<Props> = ({
                           unmountOnExit
                         >
                           <Box py={2} px={20}>
-                            {interaction?.data ? (
+                            {interaction?.data?.started ? (
                               <Stack spacing={2}>
                                 <MessagesPane
                                   currentExchange={
