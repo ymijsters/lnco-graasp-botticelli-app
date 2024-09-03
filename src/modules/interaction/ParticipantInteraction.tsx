@@ -255,6 +255,7 @@ const ParticipantInteraction = (): ReactElement => {
         return [];
       })}
       participant={currentMember}
+      sendAllMessages={interaction.sendAllToChatbot}
     />
   );
 };

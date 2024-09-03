@@ -35,7 +35,8 @@
         "DESCRIPTION": "Description du Chat",
         "INSTRUCTIONS": "Instructions pour le Participant",
         "END": "Texte de Fin d'Écran",
-        "USER": "Participant"
+        "SEND_ALL": "Laissez l'Assistant se Souvenir de Tous les Messages",
+        "SEND_ALL_INFO": "Si cette option est cochée, tous les messages précédents seront inclus dans l'invite envoyée au chatbot, au lieu des seuls messages de l'échange en cours. "
       },
       "EXCHANGES": {
         "TITLE": "Échanges Paramètres",

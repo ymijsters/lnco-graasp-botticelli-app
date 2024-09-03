@@ -12,6 +12,7 @@ export type ChatSettingsType = {
   description: string;
   participantInstructions: string;
   participantEndText: string;
+  sendAllToChatbot: boolean;
 };
 
 export type ExchangeSettings = {

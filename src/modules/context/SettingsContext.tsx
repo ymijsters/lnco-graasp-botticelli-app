@@ -27,6 +27,7 @@ export const defaultSettingsValues: AllSettingsType = {
     description: '',
     participantInstructions: '',
     participantEndText: '',
+    sendAllToChatbot: false,
   },
   exchanges: {
     exchangeList: [
