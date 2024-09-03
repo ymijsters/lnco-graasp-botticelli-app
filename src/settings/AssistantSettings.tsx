@@ -1,5 +1,12 @@
-import { FC, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+  ChangeEvent,
+  FC,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+} from 'react';
+import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -19,17 +26,20 @@ import Typography from '@mui/material/Typography';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { AssistantsSettingsType } from '@/config/appSettings';
+import {
+  AssistantSettings,
+  AssistantsSettingsType,
+} from '@/config/appSettings';
 import { MAX_TEXT_INPUT_CHARS } from '@/config/config';
 import Agent from '@/types/Agent';
 import AgentType from '@/types/AgentType';
 
 // Prop types for individual assistant settings panel
 type PropTypesSingle = {
-  assistant: AssistantsSettingsType['assistantList'][number];
+  assistant: AssistantSettings;
   onChange: (
     index: number,
-    field: keyof AssistantsSettingsType['assistantList'][number],
+    field: keyof AssistantSettings,
     value: string,
   ) => void;
   handleRemoveAssistant: (index: number) => void;
@@ -49,14 +59,15 @@ const AssistantSettingsPanel: FC<PropTypesSingle> = ({
   index,
   assistantListLength,
 }) => {
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
 
   // Destructuring assistant properties
   const {
     name: assistantName,
     description: assistantDescription,
     imageUrl: assistantImageUrl,
-  } = assistant;
+  }: AssistantSettings = assistant;
 
   // Generating a unique color for the assistant panel based on its ID
   const panelColor: string = `#0${assistant.id.slice(0, 5)}`;
@@ -97,13 +108,15 @@ const AssistantSettingsPanel: FC<PropTypesSingle> = ({
             <TextField
               value={assistantImageUrl || ''}
               label={t('SETTINGS.ASSISTANTS.IMAGE')}
-              onChange={(e) => onChange(index, 'imageUrl', e.target.value)}
+              onChange={(
+                e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+              ): void => onChange(index, 'imageUrl', e.target.value)}
               placeholder={t('SETTINGS.ASSISTANTS.URL')}
               fullWidth
             />
             <IconButton
               sx={{ color: panelColor }}
-              onClick={() => handleMoveUp(index)}
+              onClick={(): void => handleMoveUp(index)}
               disabled={index === 0} // Disabled if the assistant is at the top
             >
               <Tooltip title={t('SETTINGS.UP')}>
@@ -112,7 +125,7 @@ const AssistantSettingsPanel: FC<PropTypesSingle> = ({
             </IconButton>
             <IconButton
               sx={{ color: panelColor }}
-              onClick={() => handleMoveDown(index)}
+              onClick={(): void => handleMoveDown(index)}
               disabled={index === assistantListLength - 1} // Disabled if the assistant is at the bottom
             >
               <Tooltip title={t('SETTINGS.DOWN')}>
@@ -125,19 +138,23 @@ const AssistantSettingsPanel: FC<PropTypesSingle> = ({
             label={t('SETTINGS.ASSISTANTS.NAME')}
             multiline
             inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-            onChange={(e) => onChange(index, 'name', e.target.value)}
+            onChange={(
+              e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            ): void => onChange(index, 'name', e.target.value)}
           />
           <TextField
             value={assistantDescription}
             label={t('SETTINGS.ASSISTANTS.DESCRIPTION')}
             multiline
             inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-            onChange={(e) => onChange(index, 'description', e.target.value)}
+            onChange={(
+              e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            ): void => onChange(index, 'description', e.target.value)}
           />
           <Stack direction="row" justifyContent="center">
             <IconButton
               color="secondary"
-              onClick={() => handleRemoveAssistant(index)}
+              onClick={(): void => handleRemoveAssistant(index)}
               sx={{ width: 'auto' }}
             >
               <DeleteIcon />
@@ -157,38 +174,60 @@ type PropTypeList = {
 
 // Main component for managing assistants settings
 const AssistantsSettings: FC<PropTypeList> = ({ assistants, onChange }) => {
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
+
+  const lastAssistantRef: MutableRefObject<HTMLDivElement | null> =
+    useRef<HTMLDivElement | null>(null);
+
+  // Scroll into view when assistants change (e.g., after adding or moving)
+  useEffect((): void => {
+    if (lastAssistantRef.current) {
+      lastAssistantRef.current.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  }, [assistants.assistantList.length]);
 
   // Function to add a new assistant to the list
   const handleAddAssistant = (): void => {
-    onChange((prev) => ({
-      assistantList: [
-        // Spreading existing assistants
-        ...prev.assistantList,
-        {
-          // Generating a unique ID for the new assistant
-          id: uuidv4(),
-          name: '',
-          description: '',
-          imageUrl: '',
-        },
-      ],
-    }));
+    onChange(
+      (prev: AssistantsSettingsType): AssistantsSettingsType => ({
+        assistantList: [
+          // Spreading existing assistants
+          ...prev.assistantList,
+          {
+            // Generating a unique ID for the new assistant
+            id: uuidv4(),
+            name: '',
+            description: '',
+            imageUrl: '',
+          },
+        ],
+      }),
+    );
   };
 
   // Function to remove an assistant from the list
   const handleRemoveAssistant = (index: number): void => {
-    onChange((prev) => ({
-      // Removing the assistant at the specified index
-      assistantList: prev.assistantList.filter((_, i) => i !== index),
-    }));
+    onChange(
+      (prev: AssistantsSettingsType): AssistantsSettingsType => ({
+        // Removing the assistant at the specified index
+        assistantList: prev.assistantList.filter(
+          (_: AssistantSettings, i: number): boolean => i !== index,
+        ),
+      }),
+    );
   };
 
   // Function to move an assistant up in the list
   const handleMoveUp = (index: number): void => {
-    onChange((prev) => {
-      const updatedAssistants = [...prev.assistantList];
-      const [movedAssistant] = updatedAssistants.splice(index, 1);
+    onChange((prev: AssistantsSettingsType): AssistantsSettingsType => {
+      const updatedAssistants: AssistantSettings[] = [...prev.assistantList];
+      const [movedAssistant]: AssistantSettings[] = updatedAssistants.splice(
+        index,
+        1,
+      );
       updatedAssistants.splice(index - 1, 0, movedAssistant);
       return { assistantList: updatedAssistants };
     });
@@ -196,9 +235,12 @@ const AssistantsSettings: FC<PropTypeList> = ({ assistants, onChange }) => {
 
   // Function to move an assistant down in the list
   const handleMoveDown = (index: number): void => {
-    onChange((prev) => {
-      const updatedAssistants = [...prev.assistantList];
-      const [movedAssistant] = updatedAssistants.splice(index, 1);
+    onChange((prev: AssistantsSettingsType): AssistantsSettingsType => {
+      const updatedAssistants: AssistantSettings[] = [...prev.assistantList];
+      const [movedAssistant]: AssistantSettings[] = updatedAssistants.splice(
+        index,
+        1,
+      );
       updatedAssistants.splice(index + 1, 0, movedAssistant);
       return { assistantList: updatedAssistants };
     });
@@ -207,12 +249,13 @@ const AssistantsSettings: FC<PropTypeList> = ({ assistants, onChange }) => {
   // Function to handle changes in the assistant's fields (name, description, image URL)
   const handleChange = (
     index: number,
-    field: keyof AssistantsSettingsType['assistantList'][number],
+    field: keyof AssistantSettings,
     value: string | number | boolean | (Agent & { type: AgentType.Assistant }),
   ): void => {
-    const updatedAssistants = assistants.assistantList.map((assistant, i) =>
-      // Updating the specified field of the assistant at the specified index
-      i === index ? { ...assistant, [field]: value } : assistant,
+    const updatedAssistants: AssistantSettings[] = assistants.assistantList.map(
+      (assistant: AssistantSettings, i: number): AssistantSettings =>
+        // Updating the specified field of the assistant at the specified index
+        i === index ? { ...assistant, [field]: value } : assistant,
     );
 
     // Updating the state with the new list
@@ -241,18 +284,28 @@ const AssistantsSettings: FC<PropTypeList> = ({ assistants, onChange }) => {
           </Alert>
         ) : (
           // Mapping over the list of assistants and rendering a settings panel for each
-          assistants.assistantList.map((assistant, index) => (
-            <AssistantSettingsPanel
-              key={index}
-              assistant={assistant}
-              onChange={handleChange}
-              handleRemoveAssistant={handleRemoveAssistant}
-              handleMoveUp={handleMoveUp}
-              handleMoveDown={handleMoveDown}
-              index={index}
-              assistantListLength={assistants.assistantList.length}
-            />
-          ))
+          assistants.assistantList.map(
+            (assistant: AssistantSettings, index: number): JSX.Element => (
+              <Box
+                key={index}
+                ref={
+                  index === assistants.assistantList.length - 1
+                    ? lastAssistantRef
+                    : null
+                } // Attach ref to the last added panel
+              >
+                <AssistantSettingsPanel
+                  assistant={assistant}
+                  onChange={handleChange}
+                  handleRemoveAssistant={handleRemoveAssistant}
+                  handleMoveUp={handleMoveUp}
+                  handleMoveDown={handleMoveDown}
+                  index={index}
+                  assistantListLength={assistants.assistantList.length}
+                />
+              </Box>
+            ),
+          )
         )}
         <Button variant="contained" onClick={handleAddAssistant}>
           {t('SETTINGS.ASSISTANTS.ADD')}

@@ -2,7 +2,7 @@ import { UUID } from '@graasp/sdk';
 
 import Agent from '@/types/Agent';
 
-type AssistantSettings = Omit<Agent, 'type'>;
+export type AssistantSettings = Omit<Agent, 'type'>;
 
 export type AssistantsSettingsType = {
   assistantList: AssistantSettings[];

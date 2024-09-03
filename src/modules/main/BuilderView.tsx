@@ -1,5 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import ConversationsViewIcon from '@mui/icons-material/Chat';
 import ExchangesViewIcon from '@mui/icons-material/ChatBubble';
@@ -9,8 +16,7 @@ import AssistantViewIcon from '@mui/icons-material/SmartToy';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Button, Stack, Tab } from '@mui/material';
 
-import { useLocalContext } from '@graasp/apps-query-client';
-import { Member } from '@graasp/sdk';
+import { LocalContext, useLocalContext } from '@graasp/apps-query-client';
 
 import { isEqual } from 'lodash';
 
@@ -19,14 +25,13 @@ import {
   ChatSettingsType,
   ExchangesSettingsType,
 } from '@/config/appSettings';
-import { placeholderMember } from '@/config/config';
 import { BUILDER_VIEW_CY } from '@/config/selectors';
 import Conversations from '@/results/ConversationsView';
 
 import AssistantsSettingsComponent from '../../settings/AssistantSettings';
 import ChatSettingsComponent from '../../settings/ChatSettings';
 import ExchangesSettingsComponent from '../../settings/ExchangesSettings';
-import { useSettings } from '../context/SettingsContext';
+import { SettingsContextType, useSettings } from '../context/SettingsContext';
 
 // Enum to manage tab values
 enum Tabs {
@@ -37,8 +42,8 @@ enum Tabs {
 }
 
 // Main component: BuilderView
-const BuilderView = (): JSX.Element => {
-  const { permission } = useLocalContext();
+const BuilderView: () => JSX.Element = (): JSX.Element => {
+  const { permission }: LocalContext = useLocalContext();
 
   // Destructuring saved settings and save function from the custom useSettings hook
   const {
@@ -46,27 +51,44 @@ const BuilderView = (): JSX.Element => {
     chat: chatSavedState,
     exchanges: exchangesSavedState,
     saveSettings,
-  } = useSettings();
+  }: SettingsContextType = useSettings();
 
   // State to manage the current values of assistants, chat, and exchanges settings
-  const [assistants, setAssistants] =
-    useState<AssistantsSettingsType>(assistantsSavedState);
-  const [chat, setChat] = useState<ChatSettingsType>(chatSavedState);
-  const [exchanges, setExchanges] =
-    useState<ExchangesSettingsType>(exchangesSavedState);
+  const [assistants, setAssistants]: [
+    AssistantsSettingsType,
+    Dispatch<SetStateAction<AssistantsSettingsType>>,
+  ] = useState<AssistantsSettingsType>(assistantsSavedState);
+  const [chat, setChat]: [
+    ChatSettingsType,
+    Dispatch<SetStateAction<ChatSettingsType>>,
+  ] = useState<ChatSettingsType>(chatSavedState);
+  const [exchanges, setExchanges]: [
+    ExchangesSettingsType,
+    Dispatch<SetStateAction<ExchangesSettingsType>>,
+  ] = useState<ExchangesSettingsType>(exchangesSavedState);
 
-  useEffect(() => setAssistants(assistantsSavedState), [assistantsSavedState]);
-  useEffect(() => setChat(chatSavedState), [chatSavedState]);
-  useEffect(() => setExchanges(exchangesSavedState), [exchangesSavedState]);
+  useEffect(
+    (): void => setAssistants(assistantsSavedState),
+    [assistantsSavedState],
+  );
+  useEffect((): void => setChat(chatSavedState), [chatSavedState]);
+  useEffect(
+    (): void => setExchanges(exchangesSavedState),
+    [exchangesSavedState],
+  );
 
   // Hook for translations
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
 
-  const [checkedOutMember, setCheckedOutMember] =
-    useState<Member>(placeholderMember);
+  const [expandedConversation, setExpandedConversation]: [
+    number | null,
+    Dispatch<SetStateAction<number | null>>,
+  ] = useState<number | null>(null);
 
   // State to manage the active tab, initially set to the Assistant view
-  const [activeTab, setActiveTab] = useState(Tabs.ASSISTANT_VIEW);
+  const [activeTab, setActiveTab]: [Tabs, Dispatch<SetStateAction<Tabs>>] =
+    useState<Tabs>(Tabs.ASSISTANT_VIEW);
 
   return (
     <div data-cy={BUILDER_VIEW_CY} data-info={`Builder as ${permission}`}>
@@ -76,7 +98,10 @@ const BuilderView = (): JSX.Element => {
             <TabList
               textColor="secondary"
               indicatorColor="secondary"
-              onChange={(_, newTab: Tabs) => setActiveTab(newTab)} // Update the active tab when a new tab is selected
+              onChange={(
+                _: SyntheticEvent<Element, Event>,
+                newTab: Tabs,
+              ): void => setActiveTab(newTab)} // Update the active tab when a new tab is selected
               centered
             >
               <Tab
@@ -101,7 +126,10 @@ const BuilderView = (): JSX.Element => {
             <TabList
               textColor="primary"
               indicatorColor="primary"
-              onChange={(_, newTab: Tabs) => setActiveTab(newTab)} // Update the active tab when a new tab is selected
+              onChange={(
+                _: SyntheticEvent<Element, Event>,
+                newTab: Tabs,
+              ): void => setActiveTab(newTab)} // Update the active tab when a new tab is selected
               centered
             >
               <Tab
@@ -122,9 +150,9 @@ const BuilderView = (): JSX.Element => {
                 <Button
                   startIcon={<SaveIcon />}
                   variant="contained"
-                  onClick={() => saveSettings('assistants', assistants)}
+                  onClick={(): void => saveSettings('assistants', assistants)}
                   disabled={useMemo(
-                    () =>
+                    (): boolean =>
                       // Disable if settings have not changed or list is empty
                       isEqual(assistantsSavedState, assistants) ||
                       assistants.assistantList.length === 0,
@@ -143,10 +171,10 @@ const BuilderView = (): JSX.Element => {
                 <Button
                   startIcon={<SaveIcon />}
                   variant="contained"
-                  onClick={() => saveSettings('chat', chat)}
+                  onClick={(): void => saveSettings('chat', chat)}
                   disabled={useMemo(
                     // Disable if settings have not changed
-                    () => isEqual(chatSavedState, chat),
+                    (): boolean => isEqual(chatSavedState, chat),
                     [chat, chatSavedState],
                   )}
                 >
@@ -165,9 +193,9 @@ const BuilderView = (): JSX.Element => {
                 <Button
                   startIcon={<SaveIcon />}
                   variant="contained"
-                  onClick={() => saveSettings('exchanges', exchanges)}
+                  onClick={(): void => saveSettings('exchanges', exchanges)}
                   disabled={useMemo(
-                    () =>
+                    (): boolean =>
                       // Disable if settings have not changed or list is empty
                       isEqual(exchangesSavedState, exchanges) ||
                       exchanges.exchangeList.length === 0,
@@ -181,8 +209,8 @@ const BuilderView = (): JSX.Element => {
           </TabPanel>
           <TabPanel value={Tabs.CONVERSATIONS_VIEW}>
             <Conversations
-              checkedOutMember={checkedOutMember}
-              setCheckedOutMember={setCheckedOutMember}
+              expandedConversation={expandedConversation}
+              setExpandedConversation={setExpandedConversation}
             />
           </TabPanel>
         </TabContext>

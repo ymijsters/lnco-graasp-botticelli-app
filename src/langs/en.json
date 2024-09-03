@@ -54,11 +54,16 @@
     },
     "CONVERSATIONS": {
       "TITLE": "View Conversations",
-      "MEMBER": "Please select a member",
-      "PLACEHOLDER": "Please select a member",
-      "NONE": "No conversations so far.",
-      "COMPLETE": "Completed",
-      "INCOMPLETE": "Not completed",
+      "TABLE": {
+        "MEMBER": "Member",
+        "UPDATED": "Last change",
+        "STATUS": "Status",
+        "NOT_STARTED": "Not started",
+        "COMPLETE": "Completed",
+        "INCOMPLETE": "Not completed",
+        "DELETE": "Delete interaction",
+        "NONE": "No conversations so far."
+      },
       "RESET": "Delete and reset conversation"
     },
     "START": "Start",

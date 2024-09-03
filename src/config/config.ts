@@ -1,6 +1,3 @@
-import { Member } from '@graasp/sdk';
-
-import { t } from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 
 import { defaultSettingsValues } from '@/modules/context/SettingsContext';
@@ -52,10 +49,4 @@ export const defaultExchange: Exchange = {
   dismissed: false,
   createdAt: new Date(),
   updatedAt: new Date(),
-};
-
-export const placeholderMember: Member = {
-  id: '',
-  name: t('CONVERSATIONS.PLACEHOLDER'),
-  email: '',
 };

@@ -56,6 +56,7 @@ const theme = createTheme({
     default: grey['500'],
     background: {
       paper: '#fff',
+      default: '#fafaff', // Default background for the app
     },
   },
   status: {
