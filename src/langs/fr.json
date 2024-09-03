@@ -54,11 +54,16 @@
     },
     "CONVERSATIONS": {
       "TITLE": "Voir les Conversations",
-      "MEMBER": "Veuillez sélectionner un membre",
-      "PLACEHOLDER": "Veuillez sélectionner un membre",
-      "NONE": "Aucune conversation jusqu'à présent.",
-      "COMPLETE": "Terminé",
-      "INCOMPLETE": "Pas terminé",
+      "TABLE": {
+        "MEMBER": "Membre",
+        "UPDATED": "Dernière modification",
+        "STATUS": "Statut",
+        "NOT_STARTED": "Non démarré",
+        "COMPLETE": "Completed",
+        "INCOMPLETE": "Non terminé",
+        "DELETE": "Supprimer l'interaction",
+        "NONE": "Aucune conversation jusqu'à présent"
+      },
       "RESET": "Supprimer et réinitialiser la conversation"
     },
     "START": "Démarrer",

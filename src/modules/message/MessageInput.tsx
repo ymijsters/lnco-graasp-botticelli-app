@@ -1,5 +1,13 @@
-import { ReactElement, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+  Dispatch,
+  ReactElement,
+  RefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import CheckIcon from '@mui/icons-material/CheckRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
@@ -22,16 +30,20 @@ const MessageInput = ({
   exchangeCompleted,
 }: MessageInputProps): ReactElement => {
   // State to manage the value of the textarea input
-  const [textAreaValue, setTextAreaValue] = useState('');
+  const [textAreaValue, setTextAreaValue]: [
+    string,
+    Dispatch<SetStateAction<string>>,
+  ] = useState<string>('');
 
   // Ref to get direct access to the textarea DOM element
-  const textAreaRef = useRef<HTMLDivElement>(null);
+  const textAreaRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
   // Hook for internationalization (i18n) translation
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
 
   // Function to focus on the textarea input
-  const focusOnTextArea = (): void => {
+  const focusOnTextArea: () => void = (): void => {
     const textareaElement = textAreaRef?.current?.querySelector('textarea');
     if (textareaElement) {
       textareaElement.focus();
@@ -39,7 +51,7 @@ const MessageInput = ({
   };
 
   // Function to remove focus from the textarea input
-  const blurTextArea = (): void => {
+  const blurTextArea: () => void = (): void => {
     const textareaElement = textAreaRef?.current?.querySelector('textarea');
     if (textareaElement) {
       textareaElement.blur();
@@ -47,12 +59,12 @@ const MessageInput = ({
   };
 
   // Effect to focus on the textarea whenever the component renders
-  useEffect(() => {
+  useEffect((): void => {
     focusOnTextArea();
   });
 
   // Function to handle the send button click
-  const handleClick = (): void => {
+  const handleClick: () => void = (): void => {
     if (textAreaValue.trim() !== '') {
       onSubmit({ content: textAreaValue });
 
@@ -64,7 +76,7 @@ const MessageInput = ({
   };
 
   // Function to handle the dismiss button click
-  const handleDismiss = (): void => {
+  const handleDismiss: () => void = (): void => {
     dismissExchange();
   };
 

@@ -1,12 +1,20 @@
-import { ReactElement, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
+import { ChatBotCompletion } from '@graasp/apps-query-client';
 import { ChatBotMessage, ChatbotRole } from '@graasp/sdk';
 
+import { UseMutationResult } from '@tanstack/react-query';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -46,22 +54,28 @@ const MessagesPane = ({
   readOnly = false,
 }: MessagesPaneProps): ReactElement => {
   // Hook to post chat messages asynchronously using mutation
-  const { mutateAsync: postChatBot } = mutations.usePostChatBot();
+  const {
+    mutateAsync: postChatBot,
+  }: UseMutationResult<ChatBotCompletion, Error, ChatBotMessage[], unknown> =
+    mutations.usePostChatBot();
 
   // Function to build the prompt for the chatbot based on past messages and user input
-  const buildPrompt = (
+  const buildPrompt: (
+    threadMessages: Message[],
+    userMessage: Message,
+  ) => Array<ChatBotMessage> = (
     threadMessages: Message[],
     userMessage: Message,
   ): Array<ChatBotMessage> => {
-    const prompt = [
+    const prompt: ChatBotMessage[] = [
       currentExchange.assistant.description,
       interactionDescription,
       currentExchange.chatbotInstructions,
     ].map((txt: string = '') => ({ role: ChatbotRole.System, content: txt }));
 
     // Loop through threadMessages to add them to the prompt
-    threadMessages.forEach((msg) => {
-      const msgRole =
+    threadMessages.forEach((msg: Message) => {
+      const msgRole: ChatbotRole.Assistant | ChatbotRole.User =
         msg.sender.type === AgentType.Assistant
           ? ChatbotRole.Assistant
           : ChatbotRole.User;
@@ -75,12 +89,14 @@ const MessagesPane = ({
   };
 
   // State to manage the current status of the component (idle or loading)
-  const [status, setStatus] = useState<Status>(Status.Idle);
+  const [status, setStatus]: [Status, Dispatch<SetStateAction<Status>>] =
+    useState<Status>(Status.Idle);
 
   // State to manage the list of messages within the current exchange
-  const [msgs, setMessages] = useState<Message[]>(currentExchange.messages);
+  const [msgs, setMessages]: [Message[], Dispatch<SetStateAction<Message[]>>] =
+    useState<Message[]>(currentExchange.messages);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (msgs.length === 0) {
       setMessages([
         {
@@ -93,11 +109,12 @@ const MessagesPane = ({
   }, [currentExchange.assistant, currentExchange.participantCue, msgs.length]);
 
   // State to keep track of the number of messages sent in the current exchange
-  const [sentMessageCount, setSentMessageCount] = useState<number>(
-    currentExchange.messages.length,
-  );
+  const [sentMessageCount, setSentMessageCount]: [
+    number,
+    Dispatch<SetStateAction<number>>,
+  ] = useState<number>(currentExchange.messages.length);
 
-  useEffect(() => {
+  useEffect((): void => {
     setExchange({ ...currentExchange, messages: msgs });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msgs, setExchange]);
@@ -111,7 +128,7 @@ const MessagesPane = ({
     setMessages([]);
 
     // Mark the exchange as dismissed and update the dismissed timestamp
-    const updatedExchange = { ...currentExchange };
+    const updatedExchange: Exchange = { ...currentExchange };
     updatedExchange.dismissed = true;
     updatedExchange.dismissedAt = new Date();
 
@@ -128,12 +145,12 @@ const MessagesPane = ({
    */
   function handlePostChatbot(newMessage: Message): void {
     // Build the prompt for the chatbot using the existing messages and the new message
-    const prompt = [...buildPrompt(msgs, newMessage)];
+    const prompt: ChatBotMessage[] = [...buildPrompt(msgs, newMessage)];
 
     // Send the prompt to the chatbot API and handle the response
     postChatBot(prompt)
-      .then((chatBotRes) => {
-        const response = {
+      .then((chatBotRes: ChatBotCompletion): void => {
+        const response: Message = {
           id: uuidv4(),
           content: chatBotRes.completion,
           sender: currentExchange.assistant,
@@ -142,7 +159,7 @@ const MessagesPane = ({
         // Add the chatbot's response to the list of messages
         setMessages((m) => [...m, response]);
       })
-      .finally(() => {
+      .finally((): void => {
         // Reset the status back to idle after the chatbot responds
         setStatus(Status.Idle);
       });
@@ -160,11 +177,11 @@ const MessagesPane = ({
     };
 
     // Update the messages state with the new message
-    const updatedMessages = [...msgs, newMessage];
+    const updatedMessages: Message[] = [...msgs, newMessage];
     setMessages(updatedMessages);
 
     // Increment the count of sent messages
-    setSentMessageCount((c) => c + 1);
+    setSentMessageCount((c: number): number => c + 1);
 
     // Check if the exchange should be completed based on the number of follow-up questions
     if (sentMessageCount + 1 > currentExchange.nbFollowUpQuestions) {
@@ -212,9 +229,9 @@ const MessagesPane = ({
   }
 
   // Determine whether to show participant instructions after completing the exchange
-  const showParticipantInstructionsOnComplete =
+  const showParticipantInstructionsOnComplete: boolean =
     currentExchange.completed &&
-    currentExchange.participantInstructionsOnComplete &&
+    !!currentExchange.participantInstructionsOnComplete &&
     !readOnly;
 
   return (
@@ -223,7 +240,8 @@ const MessagesPane = ({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'white',
-        height: '100vh',
+        height: readOnly ? 'fit-content' : '100vh',
+        maxHeight: '100vh',
       }}
     >
       <Box
@@ -240,7 +258,7 @@ const MessagesPane = ({
         <Stack spacing={2} justifyContent="flex-end">
           {[...pastMessages, ...(currentExchange.dismissed ? [] : msgs)].map(
             (message: Message, index: number) => {
-              const isYou = message?.sender?.id === participant.id;
+              const isYou: boolean = message.sender.id === participant.id;
 
               return (
                 <Stack
@@ -251,10 +269,10 @@ const MessagesPane = ({
                 >
                   {!isYou && (
                     <AvatarWithStatus
-                      src={currentExchange.assistant.imageUrl}
+                      src={message.sender.imageUrl}
                       sx={{ bgcolor: '#5050d2' }}
                     >
-                      {currentExchange.assistant.name.slice(0, 2) || '🤖'}
+                      {message.sender.name.slice(0, 2) || '🤖'}
                     </AvatarWithStatus>
                   )}
                   <ChatBubble
@@ -289,7 +307,7 @@ const MessagesPane = ({
       </Box>
       {!currentExchange.dismissed && !readOnly && (
         <MessageInput
-          dismissExchange={() => dismissExchange()}
+          dismissExchange={(): void => dismissExchange()}
           onSubmit={saveNewMessage}
           exchangeCompleted={currentExchange.completed}
         />

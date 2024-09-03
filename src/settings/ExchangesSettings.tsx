@@ -1,5 +1,12 @@
-import { FC, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+  ChangeEvent,
+  FC,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+} from 'react';
+import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -16,6 +23,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Switch,
   Tooltip,
 } from '@mui/material';
@@ -23,15 +31,24 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
+import { UUID } from '@graasp/sdk';
+
 import { v4 as uuidv4 } from 'uuid';
 
-import { ExchangesSettingsType } from '@/config/appSettings';
+import {
+  AssistantSettings,
+  ExchangesSettingsType,
+  ExchangeSettings as singleExchangeType,
+} from '@/config/appSettings';
 import {
   MAX_FOLLOW_UP_QUESTIONS,
   MAX_TEXT_INPUT_CHARS,
   MIN_FOLLOW_UP_QUESTIONS,
 } from '@/config/config';
-import { useSettings } from '@/modules/context/SettingsContext';
+import {
+  SettingsContextType,
+  useSettings,
+} from '@/modules/context/SettingsContext';
 import Agent from '@/types/Agent';
 
 // Prop types for ExchangeSettingsPanel component
@@ -60,7 +77,8 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
   index,
   exchangeListLength,
 }) => {
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
 
   // Destructuring exchange settings
   const {
@@ -71,13 +89,13 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
     participantInstructionsOnComplete: exchangeOnComplete,
     nbFollowUpQuestions: exchangeFollowUpQuestions,
     hardLimit: exchangeLimit,
-  } = exchange;
+  }: singleExchangeType = exchange;
 
   // Color based on exchange ID
   const panelColor: string = `#0${exchange.id.slice(0, 5)}`;
 
   // Getting assistants from settings context
-  const { assistants } = useSettings();
+  const { assistants }: SettingsContextType = useSettings();
 
   return (
     <Stack
@@ -112,11 +130,13 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
               multiline
               inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
               fullWidth
-              onChange={(e) => onChange(index, 'description', e.target.value)}
+              onChange={(
+                e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+              ): void => onChange(index, 'description', e.target.value)}
             />
             <IconButton
               sx={{ color: panelColor }}
-              onClick={() => handleMoveUp(index)}
+              onClick={(): void => handleMoveUp(index)}
               disabled={index === 0} // Disable if already at the top
             >
               <Tooltip title={t('SETTINGS.UP')}>
@@ -125,7 +145,7 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
             </IconButton>
             <IconButton
               sx={{ color: panelColor }}
-              onClick={() => handleMoveDown(index)}
+              onClick={(): void => handleMoveDown(index)}
               disabled={index === exchangeListLength - 1} // Disable if already at the bottom
             >
               <Tooltip title={t('SETTINGS.DOWN')}>
@@ -138,16 +158,18 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
             label={t('SETTINGS.EXCHANGES.INSTRUCTIONS')}
             multiline
             inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-            onChange={(e) =>
-              onChange(index, 'chatbotInstructions', e.target.value)
-            }
+            onChange={(
+              e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+            ): void => onChange(index, 'chatbotInstructions', e.target.value)}
           />
           <TextField
             value={exchangeCue}
             label={t('SETTINGS.EXCHANGES.CUE')}
             multiline
             inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-            onChange={(e) => onChange(index, 'participantCue', e.target.value)}
+            onChange={(
+              e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+            ): void => onChange(index, 'participantCue', e.target.value)}
           />
           <Stack direction="row" spacing={2} alignItems="center">
             <Avatar src={exchangeAssistant.imageUrl}>
@@ -157,42 +179,46 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
               <InputLabel>{t('SETTINGS.EXCHANGES.ASSISTANT')}</InputLabel>
               <Select
                 value={exchangeAssistant.id}
-                renderValue={(selectedId) =>
+                renderValue={(selectedId: UUID): string =>
                   assistants.assistantList.find(
-                    (assistant) => assistant.id === selectedId,
+                    (assistant: AssistantSettings): boolean =>
+                      assistant.id === selectedId,
                   )?.name || selectedId
                 }
                 label={t('SETTINGS.EXCHANGES.ASSISTANT')}
-                onChange={(e) =>
+                onChange={(e: SelectChangeEvent<string>): void =>
                   onChange(
                     index,
                     'assistant',
                     assistants.assistantList.find(
-                      (assistant) => assistant.id === e.target.value,
+                      (assistant: AssistantSettings): boolean =>
+                        assistant.id === e.target.value,
                     ) || exchangeAssistant,
                   )
                 }
               >
-                {assistants.assistantList.map((assistant, nb) => (
-                  <MenuItem key={nb} value={assistant.id}>
-                    <Avatar src={assistant.imageUrl} sx={{ mx: '1%' }}>
-                      {assistant.name.slice(0, 2)}
-                    </Avatar>
-                    {assistant ? (
-                      assistant.name || assistant.id
-                    ) : (
-                      <Alert
-                        severity="warning"
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        {t('SETTINGS.EXCHANGES.CREATE_ASSISTANT')}
-                      </Alert>
-                    )}
-                  </MenuItem>
-                ))}
+                {assistants.assistantList.map(
+                  (assistant: AssistantSettings, nb: number): JSX.Element => (
+                    <MenuItem key={nb} value={assistant.id}>
+                      <Avatar src={assistant.imageUrl} sx={{ mx: '1%' }}>
+                        {assistant.name.slice(0, 2)}
+                      </Avatar>
+                      {assistant ? (
+                        assistant.name || assistant.id
+                      ) : (
+                        <Alert
+                          severity="warning"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {t('SETTINGS.EXCHANGES.CREATE_ASSISTANT')}
+                        </Alert>
+                      )}
+                    </MenuItem>
+                  ),
+                )}
               </Select>
             </FormControl>
           </Stack>
@@ -204,7 +230,9 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
               max: MAX_FOLLOW_UP_QUESTIONS,
             }} // Min and max values for follow-up questions
             label={t('SETTINGS.EXCHANGES.FOLLOW_UP_QUESTIONS')}
-            onChange={(e) =>
+            onChange={(
+              e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+            ): void =>
               onChange(
                 index,
                 'nbFollowUpQuestions',
@@ -221,7 +249,9 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
           </Typography>
           <Switch
             checked={exchangeLimit}
-            onChange={(e) => onChange(index, 'hardLimit', e.target.checked)}
+            onChange={(e: ChangeEvent<HTMLInputElement>): void =>
+              onChange(index, 'hardLimit', e.target.checked)
+            }
           />
           {!exchangeLimit && (
             <TextField
@@ -229,7 +259,9 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
               label={t('SETTINGS.EXCHANGES.ON_COMPLETE')}
               placeholder={t('SETTINGS.EXCHANGES.ON_COMPLETE_HELPER')}
               inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-              onChange={(e) =>
+              onChange={(
+                e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+              ): void =>
                 onChange(
                   index,
                   'participantInstructionsOnComplete',
@@ -241,7 +273,7 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
           <Stack direction="row" justifyContent="center">
             <IconButton
               color="secondary"
-              onClick={() => {
+              onClick={(): void => {
                 handleRemoveExchange(index);
               }}
               sx={{ alignSelf: 'center', width: 'auto' }}
@@ -264,44 +296,66 @@ type PropTypeList = {
 // ExchangeSettings component to manage a list of exchanges
 const ExchangeSettings: FC<PropTypeList> = ({ exchanges, onChange }) => {
   // Translation hook
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
+
+  const lastExchangeRef: MutableRefObject<HTMLDivElement | null> =
+    useRef<HTMLDivElement | null>(null);
+
+  // Scroll into view when assistants change (e.g., after adding or moving)
+  useEffect((): void => {
+    if (lastExchangeRef.current) {
+      lastExchangeRef.current.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  }, [exchanges.exchangeList.length]);
 
   // Add a new exchange to the list
   const handleAddExchange = (): void => {
-    onChange((prev) => ({
-      exchangeList: [
-        ...prev.exchangeList,
-        {
-          // Generate a new unique ID
-          id: uuidv4(),
-          assistant: {
-            id: '',
-            name: '',
+    onChange(
+      (prev: ExchangesSettingsType): ExchangesSettingsType => ({
+        exchangeList: [
+          ...prev.exchangeList,
+          {
+            // Generate a new unique ID
+            id: uuidv4(),
+            assistant: {
+              id: '',
+              name: '',
+              description: '',
+            },
             description: '',
+            chatbotInstructions: '',
+            participantCue: '',
+            participantInstructionsOnComplete: '',
+            nbFollowUpQuestions: 0,
+            hardLimit: false,
           },
-          description: '',
-          chatbotInstructions: '',
-          participantCue: '',
-          participantInstructionsOnComplete: '',
-          nbFollowUpQuestions: 0,
-          hardLimit: false,
-        },
-      ],
-    }));
+        ],
+      }),
+    );
   };
 
   // Remove an exchange from the list
   const handleRemoveExchange = (index: number): void => {
-    onChange((prev) => ({
-      exchangeList: prev.exchangeList.filter((_, i) => i !== index),
-    }));
+    onChange(
+      (prev: ExchangesSettingsType): ExchangesSettingsType => ({
+        exchangeList: prev.exchangeList.filter(
+          (_: singleExchangeType, i: number): boolean => i !== index,
+        ),
+      }),
+    );
   };
 
   // Move an exchange up in the list
   const handleMoveUp = (index: number): void => {
-    onChange((prev) => {
-      const updatedExchanges = [...prev.exchangeList];
-      const [movedExchange] = updatedExchanges.splice(index, 1);
+    onChange((prev: ExchangesSettingsType): ExchangesSettingsType => {
+      const updatedExchanges: singleExchangeType[] = [...prev.exchangeList];
+      const [movedExchange]: singleExchangeType[] = updatedExchanges.splice(
+        index,
+        1,
+      );
       updatedExchanges.splice(index - 1, 0, movedExchange);
       return { exchangeList: updatedExchanges };
     });
@@ -309,9 +363,12 @@ const ExchangeSettings: FC<PropTypeList> = ({ exchanges, onChange }) => {
 
   // Move an exchange down in the list
   const handleMoveDown = (index: number): void => {
-    onChange((prev) => {
-      const updatedExchanges = [...prev.exchangeList];
-      const [movedExchange] = updatedExchanges.splice(index, 1);
+    onChange((prev: ExchangesSettingsType): ExchangesSettingsType => {
+      const updatedExchanges: singleExchangeType[] = [...prev.exchangeList];
+      const [movedExchange]: singleExchangeType[] = updatedExchanges.splice(
+        index,
+        1,
+      );
       updatedExchanges.splice(index + 1, 0, movedExchange);
       return { exchangeList: updatedExchanges };
     });
@@ -323,8 +380,9 @@ const ExchangeSettings: FC<PropTypeList> = ({ exchanges, onChange }) => {
     field: keyof ExchangesSettingsType['exchangeList'][number],
     value: string | number | boolean | Omit<Agent, 'type'>,
   ): void => {
-    const updatedExchanges = exchanges.exchangeList.map((exchange, i) =>
-      i === index ? { ...exchange, [field]: value } : exchange,
+    const updatedExchanges: singleExchangeType[] = exchanges.exchangeList.map(
+      (exchange: singleExchangeType, i: number): singleExchangeType =>
+        i === index ? { ...exchange, [field]: value } : exchange,
     );
 
     onChange({ exchangeList: updatedExchanges });
@@ -351,18 +409,28 @@ const ExchangeSettings: FC<PropTypeList> = ({ exchanges, onChange }) => {
             {t('SETTINGS.EXCHANGES.CREATE')}
           </Alert>
         ) : (
-          exchanges.exchangeList.map((exchange, index) => (
-            <ExchangeSettingsPanel
-              key={index}
-              exchange={exchange}
-              onChange={handleChange}
-              handleRemoveExchange={handleRemoveExchange}
-              handleMoveUp={handleMoveUp}
-              handleMoveDown={handleMoveDown}
-              index={index}
-              exchangeListLength={exchanges.exchangeList.length}
-            />
-          ))
+          exchanges.exchangeList.map(
+            (exchange: singleExchangeType, index: number): JSX.Element => (
+              <Box
+                key={index}
+                ref={
+                  index === exchanges.exchangeList.length - 1
+                    ? lastExchangeRef
+                    : null
+                } // Attach ref to the last added panel
+              >
+                <ExchangeSettingsPanel
+                  exchange={exchange}
+                  onChange={handleChange}
+                  handleRemoveExchange={handleRemoveExchange}
+                  handleMoveUp={handleMoveUp}
+                  handleMoveDown={handleMoveDown}
+                  index={index}
+                  exchangeListLength={exchanges.exchangeList.length}
+                />
+              </Box>
+            ),
+          )
         )}
         <Button variant="contained" onClick={handleAddExchange}>
           +

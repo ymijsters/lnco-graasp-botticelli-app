@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ChangeEvent, FC } from 'react';
+import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
@@ -16,14 +16,15 @@ type PropTypes = {
 
 // ChatSettings component to display and update chat settings
 const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
-  const { t } = useTranslation();
+  const { t }: UseTranslationResponse<'translations', undefined> =
+    useTranslation();
 
   // Destructuring chat settings
   const {
     description: chatDescription,
     participantInstructions: chatInstructions,
     participantEndText: chatEndText,
-  } = chat;
+  }: ChatSettingsType = chat;
 
   return (
     <Stack spacing={2}>
@@ -33,14 +34,18 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
         label={t('SETTINGS.CHAT.DESCRIPTION')}
         multiline
         inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-        onChange={(e) => onChange({ ...chat, description: e.target.value })}
+        onChange={(
+          e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        ): void => onChange({ ...chat, description: e.target.value })}
       />
       <TextField
         value={chatInstructions}
         label={t('SETTINGS.CHAT.INSTRUCTIONS')}
         multiline
         inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-        onChange={(e) =>
+        onChange={(
+          e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        ): void =>
           onChange({ ...chat, participantInstructions: e.target.value })
         }
       />
@@ -49,9 +54,9 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
         label={t('SETTINGS.CHAT.END')}
         multiline
         inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
-        onChange={(e) =>
-          onChange({ ...chat, participantEndText: e.target.value })
-        }
+        onChange={(
+          e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        ): void => onChange({ ...chat, participantEndText: e.target.value })}
       />
     </Stack>
   );
