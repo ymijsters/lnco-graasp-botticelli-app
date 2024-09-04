@@ -91,8 +91,8 @@ const Conversations: FC<Props> = ({
           (exchange: Exchange): string[] =>
             exchange.messages.map((message: Message): string =>
               [
-                interactionData.participant.id,
-                message.sender.id,
+                interactionData.participant.name,
+                message.sender.name,
                 format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
                 exchange.name,
                 interactionData.name,
@@ -174,7 +174,7 @@ const Conversations: FC<Props> = ({
             {allMembers &&
               allMembers.map((member, index) => {
                 const checkedOutAppData = appDatas?.find(
-                  (appData) => appData.member.id === member.id,
+                  (appData) => appData.data.participant.id === member.id,
                 );
 
                 const interaction: Interaction | undefined =
