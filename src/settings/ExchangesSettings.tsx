@@ -82,6 +82,7 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
 
   // Destructuring exchange settings
   const {
+    name: exchangeName,
     assistant: exchangeAssistant,
     description: exchangeDescription,
     chatbotInstructions: exchangeInstructions,
@@ -125,15 +126,15 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
         <Stack spacing={1} p={2} border="1px solid #ccc" borderRadius="8px">
           <Stack direction="row" spacing={2} alignItems="center">
             <TextField
-              value={exchangeDescription}
-              label={t('SETTINGS.EXCHANGES.DESCRIPTION')}
-              multiline
+              value={exchangeName}
+              label={t('SETTINGS.EXCHANGES.NAME')}
               inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
               fullWidth
               onChange={(
                 e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-              ): void => onChange(index, 'description', e.target.value)}
+              ): void => onChange(index, 'name', e.target.value)}
             />
+
             <IconButton
               sx={{ color: panelColor }}
               onClick={(): void => handleMoveUp(index)}
@@ -153,6 +154,15 @@ const ExchangeSettingsPanel: FC<PropTypesSingle> = ({
               </Tooltip>
             </IconButton>
           </Stack>
+          <TextField
+            value={exchangeDescription}
+            label={t('SETTINGS.EXCHANGES.DESCRIPTION')}
+            multiline
+            inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
+            onChange={(
+              e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+            ): void => onChange(index, 'description', e.target.value)}
+          />
           <TextField
             value={exchangeInstructions}
             label={t('SETTINGS.EXCHANGES.INSTRUCTIONS')}
@@ -320,6 +330,7 @@ const ExchangeSettings: FC<PropTypeList> = ({ exchanges, onChange }) => {
           {
             // Generate a new unique ID
             id: uuidv4(),
+            name: '',
             assistant: {
               id: '',
               name: '',

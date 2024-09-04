@@ -32,13 +32,16 @@
       },
       "CHAT": {
         "TITLE": "Chat Settings",
+        "NAME": "Interaction Name",
         "DESCRIPTION": "Chat Description",
         "INSTRUCTIONS": "Participant Instructions",
         "END": "End Screen Text",
-        "USER": "Participant"
+        "SEND_ALL": "Let Assistant Remember All Messages",
+        "SEND_ALL_INFO": "If checked, all previous messages will be included in the prompt sent to the chatbot, instead of only messages from the current exchange."
       },
       "EXCHANGES": {
         "TITLE": "Exchanges Settings",
+        "NAME": "Exchange Name",
         "DESCRIPTION": "Exchanges Description",
         "INSTRUCTIONS": "Chatbot instructions",
         "CUE": "Initial Cue",
@@ -54,6 +57,7 @@
     },
     "CONVERSATIONS": {
       "TITLE": "View Conversations",
+      "EXPORT_ALL": "Export All",
       "TABLE": {
         "MEMBER": "Member",
         "UPDATED": "Last change",
@@ -61,7 +65,8 @@
         "NOT_STARTED": "Not started",
         "COMPLETE": "Completed",
         "INCOMPLETE": "Not completed",
-        "DELETE": "Delete interaction",
+        "DELETE": "Delete",
+        "EXPORT": "Export",
         "NONE": "No conversations so far."
       },
       "RESET": "Delete and reset conversation"

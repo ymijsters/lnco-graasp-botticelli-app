@@ -39,6 +39,7 @@ type MessagesPaneProps = {
   participant: Agent;
   autoDismiss: boolean;
   goToNextExchange: () => void;
+  sendAllMessages?: boolean;
   readOnly?: boolean;
 };
 
@@ -51,6 +52,7 @@ const MessagesPane = ({
   participant,
   autoDismiss,
   goToNextExchange,
+  sendAllMessages = false,
   readOnly = false,
 }: MessagesPaneProps): ReactElement => {
   // Hook to post chat messages asynchronously using mutation
@@ -103,6 +105,7 @@ const MessagesPane = ({
           id: uuidv4(),
           content: currentExchange.participantCue,
           sender: currentExchange.assistant,
+          sentAt: new Date(),
         },
       ]);
     }
@@ -145,7 +148,12 @@ const MessagesPane = ({
    */
   function handlePostChatbot(newMessage: Message): void {
     // Build the prompt for the chatbot using the existing messages and the new message
-    const prompt: ChatBotMessage[] = [...buildPrompt(msgs, newMessage)];
+    const prompt: ChatBotMessage[] = [
+      ...buildPrompt(
+        [...(sendAllMessages ? pastMessages : []), ...msgs],
+        newMessage,
+      ),
+    ];
 
     // Send the prompt to the chatbot API and handle the response
     postChatBot(prompt)
@@ -154,6 +162,7 @@ const MessagesPane = ({
           id: uuidv4(),
           content: chatBotRes.completion,
           sender: currentExchange.assistant,
+          sentAt: new Date(),
         };
 
         // Add the chatbot's response to the list of messages
@@ -174,6 +183,7 @@ const MessagesPane = ({
       id: uuidv4(),
       content,
       sender: participant,
+      sentAt: new Date(),
     };
 
     // Update the messages state with the new message

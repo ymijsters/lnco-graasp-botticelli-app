@@ -9,13 +9,16 @@ export type AssistantsSettingsType = {
 };
 
 export type ChatSettingsType = {
+  name: string;
   description: string;
   participantInstructions: string;
   participantEndText: string;
+  sendAllToChatbot: boolean;
 };
 
 export type ExchangeSettings = {
   id: UUID;
+  name: string;
   assistant: AssistantSettings;
   description: string;
   chatbotInstructions: string;

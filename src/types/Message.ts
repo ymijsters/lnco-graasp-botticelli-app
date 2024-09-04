@@ -6,6 +6,5 @@ export interface Message {
   id: UUID;
   content: string;
   sender: Agent;
-  updatedAt?: string;
-  createdAt?: string;
+  sentAt?: Date;
 }

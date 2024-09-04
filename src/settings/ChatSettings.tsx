@@ -1,7 +1,8 @@
 import { ChangeEvent, FC } from 'react';
 import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
+import InfoBadge from '@mui/icons-material/Info';
+import { Switch, Tooltip, Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
@@ -21,14 +22,24 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
 
   // Destructuring chat settings
   const {
+    name: chatName,
     description: chatDescription,
     participantInstructions: chatInstructions,
     participantEndText: chatEndText,
+    sendAllToChatbot: chatSendAll,
   }: ChatSettingsType = chat;
 
   return (
     <Stack spacing={2}>
       <Typography variant="h5">{t('SETTINGS.CHAT.TITLE')}</Typography>
+      <TextField
+        value={chatName}
+        label={t('SETTINGS.CHAT.NAME')}
+        inputProps={{ maxLength: MAX_TEXT_INPUT_CHARS }}
+        onChange={(
+          e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        ): void => onChange({ ...chat, name: e.target.value })}
+      />
       <TextField
         value={chatDescription}
         label={t('SETTINGS.CHAT.DESCRIPTION')}
@@ -57,6 +68,19 @@ const ChatSettings: FC<PropTypes> = ({ chat, onChange }) => {
         onChange={(
           e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
         ): void => onChange({ ...chat, participantEndText: e.target.value })}
+      />
+      <Typography variant="h6">
+        {t('SETTINGS.CHAT.SEND_ALL')}
+        {'   '}
+        <Tooltip title={t('SETTINGS.CHAT.SEND_ALL_INFO')}>
+          <InfoBadge />
+        </Tooltip>
+      </Typography>
+      <Switch
+        checked={chatSendAll}
+        onChange={(e: ChangeEvent<HTMLInputElement>): void =>
+          onChange({ ...chat, sendAllToChatbot: e.target.checked })
+        }
       />
     </Stack>
   );

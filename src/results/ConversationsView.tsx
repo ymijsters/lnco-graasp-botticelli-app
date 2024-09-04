@@ -2,11 +2,13 @@ import { FC, Fragment } from 'react';
 import { UseTranslationResponse, useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Alert,
   Box,
+  Button,
   Collapse,
   IconButton,
   Paper,
@@ -48,23 +50,13 @@ const Conversations: FC<Props> = ({
   const { mutate: deleteAppData } = mutations.useDeleteAppData();
 
   // Fetching interaction data
-  const { data: appDatas } = hooks.useAppData<Interaction>();
+  const appDatas =
+    hooks
+      .useAppData<Interaction>()
+      .data?.filter((appData) => appData.type === 'Interaction') || [];
 
   // Fetching all members from the app context or defaulting to the checked-out member
   const allMembers: Member[] = hooks.useAppContext().data?.members || [];
-
-  /*
-  // Memoized value to find the interaction corresponding to the selected member
-  const checkedOutInteraction: Interaction | undefined = useMemo(
-    (): Interaction | undefined =>
-      appDatas?.find(
-        (appData): boolean =>
-          appData?.data?.exchanges?.exchangeList &&
-          appData.member.id === checkedOutMember.id,
-      )?.data,
-    [appDatas, checkedOutMember.id],
-  );
-*/
 
   const StatusLabel: (started: boolean, complete: boolean) => string = (
     started: boolean,
@@ -79,9 +71,88 @@ const Conversations: FC<Props> = ({
     return t('CONVERSATIONS.TABLE.NOT_STARTED');
   };
 
+  // Utility function to convert JSON data to CSV format
+  const convertJsonToCsv: (data: Interaction[]) => string = (
+    data: Interaction[],
+  ): string => {
+    const headers: string[] = [
+      'Participant',
+      'Sender',
+      'Sent at',
+      'Exchange',
+      'Interaction',
+      'Content',
+      'Type',
+    ];
+    const csvRows: string[] = [
+      headers.join(','), // header row first
+      ...data.flatMap((interactionData: Interaction): string[] =>
+        interactionData.exchanges.exchangeList.flatMap(
+          (exchange: Exchange): string[] =>
+            exchange.messages.map((message: Message): string =>
+              [
+                interactionData.participant.id,
+                message.sender.id,
+                format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
+                exchange.name,
+                interactionData.name,
+                message.content,
+                typeof message.content,
+              ].join(','),
+            ),
+        ),
+      ),
+    ];
+    // map data rows
+    return csvRows.join('\n');
+  };
+  /*
+  ...data.map((row) =>
+    headers.map((header) => JSON.stringify(row[header] || '')).join(','),
+*/
+  // Function to download CSV file
+  const downloadCsv: (csv: string, filename: string) => void = (
+    csv: string,
+    filename: string,
+  ): void => {
+    const blob: Blob = new Blob([csv], { type: 'text/csv' });
+    const url: string = window.URL.createObjectURL(blob);
+    const anchor: HTMLAnchorElement = document.createElement('a');
+    anchor.setAttribute('hidden', '');
+    anchor.setAttribute('href', url);
+    anchor.setAttribute('download', filename);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  };
+
+  // Main function to handle JSON export as CSV
+  const exportJsonAsCsv: (jsonData: Interaction[], filename: string) => void = (
+    jsonData: Interaction[],
+    filename: string,
+  ): void => {
+    if (jsonData && jsonData.length) {
+      const csv: string = convertJsonToCsv(jsonData);
+      downloadCsv(csv, filename);
+    }
+  };
+
   return (
     <Stack spacing={2}>
-      <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
+        <Button
+          disabled={appDatas?.length === 0}
+          onClick={(): void =>
+            exportJsonAsCsv(
+              appDatas.map((appData): Interaction => appData.data),
+              `chatbot_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+            )
+          }
+        >
+          {t('CONVERSATIONS.EXPORT_ALL')}
+        </Button>
+      </Stack>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
@@ -91,6 +162,7 @@ const Conversations: FC<Props> = ({
               <TableCell>{t('CONVERSATIONS.TABLE.UPDATED')}</TableCell>
               <TableCell>{t('CONVERSATIONS.TABLE.STATUS')}</TableCell>
               <TableCell>{t('CONVERSATIONS.TABLE.DELETE')}</TableCell>
+              <TableCell>{t('CONVERSATIONS.TABLE.EXPORT')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -155,11 +227,25 @@ const Conversations: FC<Props> = ({
                               id: interaction?.id || '',
                             })
                           }
+                          disabled={!interaction}
                           sx={{ width: 'auto' }}
                         >
                           <Tooltip title={t('CONVERSATIONS.RESET')}>
                             <DeleteIcon />
                           </Tooltip>
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={(): void => {
+                            exportJsonAsCsv(
+                              interaction ? [interaction.data] : [],
+                              `chatbot_${interaction?.data.description}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+                            );
+                          }}
+                          disabled={!interaction?.data}
+                        >
+                          <FileDownloadIcon />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -174,7 +260,7 @@ const Conversations: FC<Props> = ({
                           unmountOnExit
                         >
                           <Box py={2} px={20}>
-                            {interaction?.data ? (
+                            {interaction?.data?.started ? (
                               <Stack spacing={2}>
                                 <MessagesPane
                                   currentExchange={
@@ -225,112 +311,6 @@ const Conversations: FC<Props> = ({
       </TableContainer>
     </Stack>
   );
-  /*
-  return (
-    <Stack spacing={2}>
-      <Typography variant="h5">{t('CONVERSATIONS.TITLE')}</Typography>
-      <FormControl fullWidth>
-        <InputLabel>{t('CONVERSATIONS.MEMBER')}</InputLabel>
-        <Select
-          value={checkedOutMember.id}
-          renderValue={(selectedId: string): string =>
-            allMembers?.find(
-              (member: Member): boolean => member.id === selectedId,
-            )?.name || selectedId
-          }
-          label={t('CONVERSATIONS.MEMBER')}
-          onChange={(e: SelectChangeEvent<string>): void =>
-            setCheckedOutMember(
-              allMembers.find(
-                (member: Member): boolean => member.id === e.target.value,
-              ) || checkedOutMember,
-            )
-          }
-        >
-          {allMembers.map(
-            (member: Member, nb: number): JSX.Element => (
-              <MenuItem key={nb} value={member.id}>
-                {member.name || member.id}
-              </MenuItem>
-            ),
-          )}
-        </Select>
-      </FormControl>
-      {checkedOutMember.id === '' ? null : (
-        <Box py={2} px={20} border="1px solid #ccc" borderRadius="8px">
-          {checkedOutInteraction ? (
-            <Stack spacing={2}>
-              <MessagesPane
-                currentExchange={
-                  checkedOutInteraction.exchanges.exchangeList[
-                    checkedOutInteraction.currentExchange
-                  ]
-                }
-                setExchange={(): void => {}}
-                interactionDescription=""
-                pastMessages={
-                  checkedOutInteraction.exchanges.exchangeList.flatMap(
-                    (exchange: Exchange): Message[] => {
-                      // Collect dismissed messages from exchanges
-                      if (exchange.dismissed) {
-                        return exchange.messages;
-                      }
-                      return [];
-                    },
-                  ) || []
-                }
-                participant={checkedOutInteraction.participant}
-                autoDismiss={false}
-                goToNextExchange={(): void => {}}
-                readOnly
-              />
-              {checkedOutInteraction.completed ? (
-                <Alert variant="filled" severity="success">
-                  {t('CONVERSATIONS.TABLE.COMPLETE')}
-                </Alert>
-              ) : (
-                <Alert sx={{ Width: '50%' }} variant="filled" severity="error">
-                  {t('CONVERSATIONS.TABLE.INCOMPLETE')}
-                </Alert>
-              )}
-
-              <Stack direction="row" justifyContent="center">
-                <IconButton
-                  color="secondary"
-                  onClick={(): void =>
-                    deleteAppData({
-                      id:
-                        appDatas?.find(
-                          (appData): boolean =>
-                            appData.member.id === checkedOutMember.id,
-                        )?.id || '',
-                    })
-                  }
-                  sx={{ width: 'auto' }}
-                >
-                  <Tooltip title={t('CONVERSATIONS.RESET')}>
-                    <DeleteIcon />
-                  </Tooltip>
-                </IconButton>
-              </Stack>
-            </Stack>
-          ) : (
-            // Show a warning if no interaction is found
-            <Alert
-              severity="warning"
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              {t('CONVERSATIONS.NONE')}
-            </Alert>
-          )}
-        </Box>
-      )}
-    </Stack>
-  );
-  */
 };
 
 export default Conversations;
