@@ -38,7 +38,9 @@ const ParticipantInteraction = (): ReactElement => {
   // Getting the participant ID from local context
   const { memberId: participantId }: LocalContext = useLocalContext();
 
-  const { data: appDatas } = hooks.useAppData<Interaction>();
+  const appDatas = hooks
+    .useAppData<Interaction>()
+    .data?.filter((appData) => appData.type === 'Interaction');
   const { mutate: postAppData } = mutations.usePostAppData();
   const { mutate: patchAppData } = mutations.usePatchAppData();
   const { chat, exchanges }: SettingsContextType = useSettings();
@@ -84,11 +86,7 @@ const ParticipantInteraction = (): ReactElement => {
 
   // Memoize the current app data for the participant
   const currentAppData = useMemo(
-    () =>
-      appDatas?.find(
-        (appData) =>
-          appData?.data?.exchanges && appData.member.id === participantId,
-      ),
+    () => appDatas?.find((appData) => appData.member.id === participantId),
     [appDatas, participantId],
   );
 
@@ -131,6 +129,7 @@ const ParticipantInteraction = (): ReactElement => {
             exchange.id === updatedExchange.id ? updatedExchange : exchange,
           ),
         },
+        updatedAt: new Date(),
       }),
     );
   }, []);
@@ -161,6 +160,7 @@ const ParticipantInteraction = (): ReactElement => {
         ...prev,
         started: true,
         startedAt: new Date(),
+        updatedAt: new Date(),
       }),
     );
   };
@@ -175,12 +175,14 @@ const ParticipantInteraction = (): ReactElement => {
           ...prev,
           completed: true,
           completedAt: new Date(),
+          updatedAt: new Date(),
         };
       }
       return {
         ...prev,
         // Move to the next exchange
         currentExchange: prev.currentExchange + 1,
+        updatedAt: new Date(),
       };
     });
   };
