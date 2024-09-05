@@ -25,6 +25,7 @@ import {
   ChatSettingsType,
   ExchangesSettingsType,
 } from '@/config/appSettings';
+import { hooks } from '@/config/queryClient';
 import { BUILDER_VIEW_CY } from '@/config/selectors';
 import Conversations from '@/results/ConversationsView';
 
@@ -214,6 +215,9 @@ const BuilderView: () => JSX.Element = (): JSX.Element => {
             />
           </TabPanel>
         </TabContext>
+        <Box p={2}>
+          <pre>{JSON.stringify(hooks.useAppData().data, null, 2)}</pre>
+        </Box>
       </Box>
     </div>
   );

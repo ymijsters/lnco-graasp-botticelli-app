@@ -91,14 +91,19 @@ const Conversations: FC<Props> = ({
           (exchange: Exchange): string[] =>
             exchange.messages.map((message: Message): string =>
               [
-                interactionData.participant.id,
-                message.sender.id,
+                interactionData.participant.name,
+                message.sender.name,
                 format(new Date(message.sentAt || ''), 'dd/MM/yyyy HH:mm'),
                 exchange.name,
                 interactionData.name,
                 message.content,
                 typeof message.content,
-              ].join(','),
+              ]
+                .map(
+                  (cellText: string): string =>
+                    `"${cellText.replaceAll('\n', ' ')}"`,
+                )
+                .join(','),
             ),
         ),
       ),
@@ -168,10 +173,12 @@ const Conversations: FC<Props> = ({
           <TableBody>
             {allMembers &&
               allMembers.map((member, index) => {
-                const interaction = appDatas?.find(
-                  (appData) => appData.member.id === member.id,
+                const checkedOutAppData = appDatas?.find(
+                  (appData) => appData.data.participant.id === member.id,
                 );
 
+                const interaction: Interaction | undefined =
+                  checkedOutAppData?.data;
                 return (
                   <Fragment key={index}>
                     <TableRow>
@@ -206,16 +213,17 @@ const Conversations: FC<Props> = ({
                           variant="filled"
                           severity={
                             // eslint-disable-next-line no-nested-ternary
-                            interaction?.data.completed
+                            interaction?.completed
                               ? 'success'
-                              : interaction?.data.started
+                              : interaction?.started
                                 ? 'warning'
                                 : 'error'
                           }
                         >
                           {StatusLabel(
-                            interaction?.data.started || false,
-                            interaction?.data.completed || false,
+                            interaction?.started || false,
+                            interaction?.completed || false,
+
                           )}
                         </Alert>
                       </TableCell>
@@ -224,10 +232,10 @@ const Conversations: FC<Props> = ({
                           color="secondary"
                           onClick={(): void =>
                             deleteAppData({
-                              id: interaction?.id || '',
+                              id: checkedOutAppData?.id || '',
                             })
                           }
-                          disabled={!interaction}
+                          disabled={!checkedOutAppData}
                           sx={{ width: 'auto' }}
                         >
                           <Tooltip title={t('CONVERSATIONS.RESET')}>
@@ -239,11 +247,11 @@ const Conversations: FC<Props> = ({
                         <IconButton
                           onClick={(): void => {
                             exportJsonAsCsv(
-                              interaction ? [interaction.data] : [],
-                              `chatbot_${interaction?.data.description}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+                              interaction ? [interaction] : [],
+                              `chatbot_${interaction?.description}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
                             );
                           }}
-                          disabled={!interaction?.data}
+                          disabled={!interaction}
                         >
                           <FileDownloadIcon />
                         </IconButton>
@@ -260,18 +268,18 @@ const Conversations: FC<Props> = ({
                           unmountOnExit
                         >
                           <Box py={2} px={20}>
-                            {interaction?.data?.started ? (
+                            {interaction?.started ? (
                               <Stack spacing={2}>
                                 <MessagesPane
                                   currentExchange={
-                                    interaction.data.exchanges.exchangeList[
-                                      interaction.data.currentExchange
+                                    interaction.exchanges.exchangeList[
+                                      interaction.currentExchange
                                     ]
                                   }
                                   setExchange={(): void => {}}
                                   interactionDescription=""
                                   pastMessages={
-                                    interaction.data.exchanges.exchangeList.flatMap(
+                                    interaction.exchanges.exchangeList.flatMap(
                                       (exchange: Exchange): Message[] => {
                                         // Collect dismissed messages from exchanges
                                         if (exchange.dismissed) {
@@ -281,7 +289,7 @@ const Conversations: FC<Props> = ({
                                       },
                                     ) || []
                                   }
-                                  participant={interaction.data.participant}
+                                  participant={interaction.participant}
                                   autoDismiss={false}
                                   goToNextExchange={(): void => {}}
                                   readOnly

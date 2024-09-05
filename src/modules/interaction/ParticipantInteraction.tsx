@@ -15,7 +15,14 @@ import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { LocalContext, useLocalContext } from '@graasp/apps-query-client';
+import {
+  AppContext,
+  LocalContext,
+  useLocalContext,
+} from '@graasp/apps-query-client';
+import { Member } from '@graasp/sdk';
+
+import { UseQueryResult } from '@tanstack/react-query';
 
 import {
   defaultAssistant,
@@ -38,74 +45,97 @@ const ParticipantInteraction = (): ReactElement => {
   // Getting the participant ID from local context
   const { memberId: participantId }: LocalContext = useLocalContext();
 
-  const { data: appDatas } = hooks.useAppData<Interaction>();
+  // Fetching application data for interactions
+  const { data: appDataList, isLoading: appDataLoading } =
+    hooks.useAppData<Interaction>();
   const { mutate: postAppData } = mutations.usePostAppData();
   const { mutate: patchAppData } = mutations.usePatchAppData();
-  const { chat, exchanges }: SettingsContextType = useSettings();
 
+  // Fetching settings context
+  const { chat, exchanges }: SettingsContextType = useSettings();
   const { t }: UseTranslationResponse<'translations', undefined> =
     useTranslation();
 
+  // Fetching app member context
+  const { data: appContextData }: UseQueryResult<AppContext, unknown> =
+    hooks.useAppContext();
+
+  // Find the member in app context data by participant ID
+  const appMember: Member | undefined = useMemo(
+    () => appContextData?.members.find((member) => member.id === participantId),
+    [appContextData, participantId],
+  );
+
+
   // Define the current member as an agent, merging with the default user
-  const currentMember: Agent = {
-    ...defaultUser,
-    ...hooks
-      .useAppContext()
-      // Find the member in app context data by participant ID
-      .data?.members.find((member) => member.id === participantId),
-  };
+  const currentMember: Agent = useMemo(
+    (): Agent => ({
+      ...defaultUser,
+      ...(appMember?.id ? { id: appMember.id } : {}),
+      ...(appMember?.name ? { name: appMember.name } : {}),
+    }),
+    [appMember?.id, appMember?.name],
+  );
 
   /**
    * @function createInteractionFromTemplate
    * @description Creates and returns a new `Interaction` object by merging default settings with chat and exchange settings.
    * @returns {Interaction} A fully constructed `Interaction` object with merged settings.
    */
-  function createInteractionFromTemplate(): Interaction {
-    // Merge chat settings with default interaction
-    const interactionBase: Interaction = {
-      ...defaultInteraction,
-      ...chat,
-      participant: currentMember,
-    };
-    interactionBase.exchanges.exchangeList = exchanges.exchangeList.map(
-      (exchange) => ({
-        // Merge default exchange with each exchange from settings
-        ...defaultExchange,
-        ...exchange,
-        assistant: {
-          ...defaultAssistant,
-          ...exchange.assistant,
-          type: AgentType.Assistant,
-        },
-      }),
-    );
-    return interactionBase;
-  }
+  const createInteractionFromTemplate: () => Interaction =
+    useCallback((): Interaction => {
+      const interactionBase: Interaction = {
+        ...defaultInteraction,
+        ...chat,
+        participant: currentMember,
+      };
+      interactionBase.exchanges.exchangeList = exchanges.exchangeList.map(
+        (exchange) => ({
+          ...defaultExchange,
+          ...exchange,
+          assistant: {
+            ...defaultAssistant,
+            ...exchange.assistant,
+            type: AgentType.Assistant,
+          },
+        }),
+      );
+      return interactionBase;
+    }, [chat, currentMember, exchanges.exchangeList]);
 
   // Memoize the current app data for the participant
   const currentAppData = useMemo(
     () =>
-      appDatas?.find(
-        (appData) =>
-          appData?.data?.exchanges && appData.member.id === participantId,
-      ),
-    [appDatas, participantId],
+      appDataList
+        ?.filter((appData) => appData.type === 'Interaction')
+        .find((appData) => appData.data.participant.id === participantId),
+    [appDataList, participantId],
   );
+
+  // State to manage the current interaction, either from existing data or a new template
+  const [interaction, setInteraction]: [
+    Interaction | undefined,
+    Dispatch<SetStateAction<Interaction | undefined>>,
+  ] = useState<Interaction | undefined>(undefined);
+
+  useEffect((): void => {
+    if (!appDataLoading && appContextData && appMember) {
+      setInteraction(currentAppData?.data || createInteractionFromTemplate());
+    }
+  }, [
+    appDataLoading,
+    appContextData,
+    appMember,
+    createInteractionFromTemplate,
+    currentAppData?.data,
+  ]);
 
   // Ref to track if the app data has already been posted
   const hasPosted: MutableRefObject<boolean> = useRef(!!currentAppData);
 
-  // State to manage the current interaction, either from existing data or a new template
-  const [interaction, setInteraction]: [
-    Interaction,
-    Dispatch<SetStateAction<Interaction>>,
-  ] = useState<Interaction>(
-    (currentAppData?.data as Interaction) || createInteractionFromTemplate(),
-  );
-
   // Effect to post the interaction data if it hasn't been posted yet
   useEffect((): void => {
-    if (!hasPosted.current) {
+    if (!hasPosted.current && interaction) {
       postAppData({ data: interaction, type: 'Interaction' });
       hasPosted.current = true;
     }
@@ -113,7 +143,7 @@ const ParticipantInteraction = (): ReactElement => {
 
   // Effect to patch the interaction data if it has been posted and current app data exists
   useEffect((): void => {
-    if (hasPosted.current && currentAppData?.id) {
+    if (hasPosted.current && currentAppData?.id && interaction) {
       patchAppData({
         id: currentAppData.id,
         data: interaction,
@@ -124,22 +154,27 @@ const ParticipantInteraction = (): ReactElement => {
   // Callback to update a specific exchange within the interaction
   const updateExchange = useCallback((updatedExchange: Exchange): void => {
     setInteraction(
-      (prevState: Interaction): Interaction => ({
-        ...prevState,
-        exchanges: {
-          exchangeList: prevState.exchanges.exchangeList.map((exchange) =>
-            exchange.id === updatedExchange.id ? updatedExchange : exchange,
-          ),
-        },
-      }),
+      (prevState: Interaction | undefined): Interaction | undefined => {
+        if (prevState) {
+          return {
+            ...(prevState || defaultInteraction),
+            exchanges: {
+              exchangeList: prevState.exchanges.exchangeList.map((exchange) =>
+                exchange.id === updatedExchange.id ? updatedExchange : exchange,
+              ),
+            },
+            updatedAt: new Date(),
+          };
+        }
+        return undefined;
+      },
     );
   }, []);
 
   // Effect to handle actions when the user tries to leave the page (before unload)
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent): string => {
-      if (!interaction.completed) {
-        // If the interaction is not completed, prompt the user before leaving
+      if (!interaction?.completed) {
         event.preventDefault();
         const confirmationMessage = 'Are you sure you want to leave?';
         // eslint-disable-next-line no-param-reassign
@@ -152,36 +187,45 @@ const ParticipantInteraction = (): ReactElement => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [interaction.completed]);
+  }, [interaction?.completed]);
 
   // Function to start the interaction
   const startInteraction = (): void => {
-    setInteraction(
-      (prev: Interaction): Interaction => ({
-        ...prev,
-        started: true,
-        startedAt: new Date(),
-      }),
-    );
+    setInteraction((prev: Interaction | undefined): Interaction | undefined => {
+      if (prev) {
+        return {
+          ...(prev || defaultInteraction),
+          started: true,
+          startedAt: new Date(),
+          updatedAt: new Date(),
+        };
+      }
+      return undefined;
+    });
   };
 
   // Function to move to the next exchange or complete the interaction
   const goToNextExchange = (): void => {
-    setInteraction((prev: Interaction): Interaction => {
-      const numExchanges: number = prev.exchanges.exchangeList.length;
-      if (prev.currentExchange === numExchanges - 1) {
-        // If this is the last exchange, mark the interaction as completed
+    setInteraction((prev: Interaction | undefined): Interaction | undefined => {
+      if (prev) {
+        const numExchanges: number = prev.exchanges.exchangeList.length || 0;
+        if (prev.currentExchange === numExchanges - 1) {
+          // If this is the last exchange, mark the interaction as completed
+          return {
+            ...prev,
+            completed: true,
+            completedAt: new Date(),
+            updatedAt: new Date(),
+          };
+        }
+
         return {
           ...prev,
-          completed: true,
-          completedAt: new Date(),
+          currentExchange: (prev?.currentExchange || 0) + 1,
+          updatedAt: new Date(),
         };
       }
-      return {
-        ...prev,
-        // Move to the next exchange
-        currentExchange: prev.currentExchange + 1,
-      };
+      return undefined;
     });
   };
 
@@ -222,38 +266,40 @@ const ParticipantInteraction = (): ReactElement => {
       </Box>
     );
   }
+
   // Render the completed interaction message if the interaction is completed
-  return interaction.completed ? (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        textAlign: 'center',
-      }}
-    >
-      <Typography variant="body1" sx={{ p: 10, textAlign: 'center' }}>
-        {interaction.participantEndText}
-      </Typography>
-    </Box>
-  ) : (
-    // Render the MessagesPane component to handle the conversation
+  if (interaction.completed) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="body1" sx={{ p: 10, textAlign: 'center' }}>
+          {interaction.participantEndText}
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Render the MessagesPane component to handle the conversation
+  return (
     <MessagesPane
       goToNextExchange={goToNextExchange}
       autoDismiss={
         interaction.exchanges.exchangeList[interaction.currentExchange]
-          .hardLimit
-      } // Auto-dismiss exchanges if the hard limit is reached
+          ?.hardLimit
+      }
       currentExchange={
         interaction.exchanges.exchangeList[interaction.currentExchange]
       }
       setExchange={updateExchange}
       interactionDescription={interaction.description}
-      pastMessages={interaction.exchanges.exchangeList.flatMap((exchange) => {
-        if (exchange.dismissed) {
-          return exchange.messages;
-        }
-        return [];
-      })}
+      pastMessages={interaction.exchanges.exchangeList.flatMap((exchange) =>
+        exchange.dismissed ? exchange.messages : [],
+      )}
       participant={currentMember}
       sendAllMessages={interaction.sendAllToChatbot}
     />
