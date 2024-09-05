@@ -66,7 +66,6 @@ const ParticipantInteraction = (): ReactElement => {
     [appContextData, participantId],
   );
 
-
   // Define the current member as an agent, merging with the default user
   const currentMember: Agent = useMemo(
     (): Agent => ({

@@ -223,7 +223,6 @@ const Conversations: FC<Props> = ({
                           {StatusLabel(
                             interaction?.started || false,
                             interaction?.completed || false,
-
                           )}
                         </Alert>
                       </TableCell>
