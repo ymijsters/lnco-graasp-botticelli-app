@@ -179,7 +179,6 @@ const Conversations: FC<Props> = ({
 
                 const interaction: Interaction | undefined =
                   checkedOutAppData?.data;
-
                 return (
                   <Fragment key={index}>
                     <TableRow>
@@ -224,6 +223,7 @@ const Conversations: FC<Props> = ({
                           {StatusLabel(
                             interaction?.started || false,
                             interaction?.completed || false,
+
                           )}
                         </Alert>
                       </TableCell>

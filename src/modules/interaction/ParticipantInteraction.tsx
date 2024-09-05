@@ -66,6 +66,7 @@ const ParticipantInteraction = (): ReactElement => {
     [appContextData, participantId],
   );
 
+
   // Define the current member as an agent, merging with the default user
   const currentMember: Agent = useMemo(
     (): Agent => ({
@@ -217,6 +218,7 @@ const ParticipantInteraction = (): ReactElement => {
             updatedAt: new Date(),
           };
         }
+
         return {
           ...prev,
           currentExchange: (prev?.currentExchange || 0) + 1,
@@ -233,7 +235,7 @@ const ParticipantInteraction = (): ReactElement => {
   }
 
   // Handle the start of the interaction
-  const handleStartInteraction = (): void => {
+  const handleStartInteraction: () => void = (): void => {
     startInteraction();
   };
 
